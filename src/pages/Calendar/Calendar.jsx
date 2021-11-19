@@ -27,8 +27,8 @@ const fetchedConferenceMock = {
           "Chair AA",
           "Chair AB"
         ],
-        "startAt": "2021-11-11T15:59:06.311058+00:00",
-        "endAt": "2021-11-11T21:59:06.311058+00:00",
+        "startAt": "2021-11-18T16:00:00.311058+00:00",
+        "endAt": "2021-11-18T22:00:00.311058+00:00",
         "backgroundColor": 2156287
       },
       {
@@ -40,8 +40,8 @@ const fetchedConferenceMock = {
           "Chair BA",
           "Chair BB"
         ],
-        "startAt": "2021-11-11T16:59:06.311058+00:00",
-        "endAt": "2021-11-11T21:59:06.311058+00:00",
+        "startAt": "2021-11-18T18:59:06.311058+00:00",
+        "endAt": "2021-11-18T19:59:06.311058+00:00",
         "backgroundColor": 10514929
       }
     ]
@@ -63,9 +63,9 @@ const Calendar = () => {
             <ReactCalendar
                 localizer={localizer}
                 events={mockEvents}
-                defaultView='day'
+                defaultView='week'
                 onSelectEvent={onSelectEvent}
-                views={['day']}
+                views={['week', 'day']}
             />
             <SectionModal
                 visible={isModalVisible}
