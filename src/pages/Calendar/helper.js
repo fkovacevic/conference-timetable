@@ -8,4 +8,8 @@ export const sectionsInfoToCalendarEvents = (sections) => sections.map((section)
     title: sectionInfoToCalendarEventTitle(section),
     start: new Date(section.startAt),
     end: new Date(section.endAt),
+    color: section.backgroundColor,
+    chairs: section.chairs,
+    key: section.id,
 }));
+

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { Modal } from 'antd';
-import PresentationsList from './PresentationsList';
+import PresentationsList from './PresentationsList/PresentationsList';
 
 const fetchedSectionMock = {
     "id": 1,
@@ -23,7 +23,7 @@ const fetchedSectionMock = {
           "Author AAA",
           "Author AAB"
         ],
-        "description": "Description",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non ex volutpat arcu interdum condimentum elementum vel nisl. Integer iaculis turpis lectus, nec luctus ante mattis quis. Nunc at pharetra sem, id consectetur justo. Nulla consequat luctus fermentum. Morbi et ornare turpis, ac faucibus ante. Phasellus bibendum diam a accumsan feugiat. ",
         "position": 1,
         "durationMinutes": 60,
         "attachment": null,
@@ -36,7 +36,7 @@ const fetchedSectionMock = {
           "Author ABA",
           "Author ABB"
         ],
-        "description": "Description",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non ex volutpat arcu interdum condimentum elementum vel nisl. Integer iaculis turpis lectus, nec luctus ante mattis quis. Nunc at pharetra sem, id consectetur justo. Nulla consequat luctus fermentum. Morbi et ornare turpis, ac faucibus ante. Phasellus bibendum diam a accumsan feugiat. ",
         "position": 2,
         "durationMinutes": 60,
         "attachment": null,
@@ -49,7 +49,7 @@ const fetchedSectionMock = {
           "Author ABA",
           "Author ABB"
         ],
-        "description": "Description",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non ex volutpat arcu interdum condimentum elementum vel nisl. Integer iaculis turpis lectus, nec luctus ante mattis quis. Nunc at pharetra sem, id consectetur justo. Nulla consequat luctus fermentum. Morbi et ornare turpis, ac faucibus ante. Phasellus bibendum diam a accumsan feugiat. ",
         "position": 2,
         "durationMinutes": 60,
         "attachment": null,
