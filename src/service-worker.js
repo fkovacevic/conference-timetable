@@ -8,10 +8,10 @@
 // service worker, and the Workbox build step will be skipped.
 
 import { clientsClaim } from 'workbox-core';
-import { ExpirationPlugin } from 'workbox-expiration';
+// import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { StaleWhileRevalidate } from 'workbox-strategies';
+import { CacheFirst, NetworkFirst } from 'workbox-strategies';
 
 clientsClaim();
 
@@ -49,15 +49,27 @@ registerRoute(
 // An example runtime caching route for requests that aren't handled by the
 // precache, in this case same-origin .png requests like those from in public/
 registerRoute(
-	// Add in any other file extensions or routing criteria as needed.
-	({ url }) => url.origin === self.location.origin && url.pathname.endsWith('.png'), // Customize this strategy as needed, e.g., by changing to CacheFirst.
-	new StaleWhileRevalidate({
+	({ url }) => url.origin === self.location.origin && url.pathname.endsWith('.png'),
+	new CacheFirst({
 		cacheName: 'images',
-		plugins: [
-			// Ensure that once this runtime cache reaches a maximum size the
-			// least-recently used images are removed.
-			new ExpirationPlugin({ maxEntries: 50 }),
-		],
+	})
+);
+
+// cache everything starting with /api/events/
+// use network first since it might change often
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/events'),
+	new NetworkFirst({
+		cacheName: 'calendar',
+	})
+);
+
+// cache everything starting with /api/sections/
+// use network first since it might change often
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/sections/'),
+	new NetworkFirst({
+		cacheName: 'sections',
 	})
 );
 
@@ -68,6 +80,19 @@ self.addEventListener('message', (event) => {
 	if (event.data && event.data.type === 'SKIP_WAITING') {
 		self.skipWaiting();
 	}
+});
+
+// on receiving of push message, raise notification
+self.addEventListener('push', (event) => {
+	var options = {
+		body: event.data.text(),
+		icon: 'images/calendar-64.png',
+		vibrate: [100, 50, 100],
+
+	  };
+	  event.waitUntil(
+		self.registration.showNotification('Notification!', options)
+	  );
 });
 
 // Any other custom service worker logic can go here.

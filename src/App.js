@@ -13,7 +13,7 @@ const App = () => {
                 <Route exact path="/">
                     <Homepage />
                 </Route>
-                <Route exact path="/calendar">
+                <Route exact path="/calendar/:conferenceId">
                     <Calendar />
                 </Route>
             </Switch>

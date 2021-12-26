@@ -1,9 +1,103 @@
-.calendar {
-    &__search {
-		padding: 24px;
+@import '../../constants/styles/color-constants';
 
+.calendar {
+	background-color: $background-color;
+	&__notification {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background-color: $warning-color;
+		height: 30px;
+		&__text {
+			font-weight: 600;
+			margin-left: 16px;
+			color: white;
+		}
+	}
+    &__header-wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	&__header {
+		width: 70%;
+		display: flex;
+		justify-content: space-between;
+		flex-direction: row;
+		padding: 16px;
+		margin-bottom: 8px;
+		&__info {
+			font-weight: 600;
+			color: $theme-blue;
+			font-size: x-large;
+			padding: 8px;
+		}
+		&__search {
+			padding: 8px;
+		}
+	}
+	&__panel-wrapper {
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 	&__panel {
+		width: 70%;
 		height: 600px;
+		.rbc-btn-group > button {
+			background-color: $theme-blue;
+			border: 1px solid white;
+			color: white;
+			cursor: pointer;
+		}
+		.rbc-toolbar .rbc-toolbar-label {
+			font-weight: 600;
+			color: $theme-blue;
+		}
+		.rbc-label {
+			color: $theme-blue;
+			font-weight: 600;
+		}
+		.rbc-header {
+			color: $theme-blue;
+			font-weight: 600;
+		}
+	}
+	&--loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 600px;
+	}
+}
+
+@media only screen and (max-width: 600px) {
+	.calendar {
+		&__notification {
+			padding: 8px;
+			height: 40px;
+			
+		}
+		&__header {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			width: 100%;
+			&__info {
+				margin-bottom: 16px;
+			}
+			&__search {
+				display: flex;
+				justify-content: right;
+				align-items: center;
+			}
+		}
+		&__panel {
+			width: 100%;
+		}
+		&--loading {
+			height: 700px;
+		}
 	}
 }

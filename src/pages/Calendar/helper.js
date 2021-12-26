@@ -10,6 +10,6 @@ export const sectionsInfoToCalendarEvents = (sections) => sections.map((section)
     end: new Date(section.endAt),
     color: section.backgroundColor,
     chairs: section.chairs,
-    key: section.id,
+    id: section.id,
 }));
 
