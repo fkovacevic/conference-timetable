@@ -20,5 +20,5 @@ npm run build
 ```
 followed by
 ```
-serve -s build
+serve -l 80 -s build
 ```
