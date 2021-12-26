@@ -1,0 +1,60 @@
+.flex {
+  display: flex;
+}
+
+.searchWrapper {
+  margin: auto;
+
+  width: 80%;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search {
+  width: 60%;
+}
+.followed {
+  border-left: 3px solid lightskyblue;
+  color: white;
+  width: 30%;
+  padding: 20px;
+  margin: 0 30px;
+  background-color: lightblue;
+}
+.adaptiveFlex {
+  margin-top: 10%;
+  display: flex;
+}
+.noneFollowed {
+  color: black;
+}
+.scroll {
+  height: 800px;
+  overflow: auto;
+}
+/*
+(max-width: 600px)
+*/
+
+@media only screen and (orientation: portrait) {
+  /* *{
+    font-size: 1vw;
+  } */
+  .adaptiveFlex {
+    margin-top: 10%;
+    display: flex;
+    flex-direction: column;
+  }
+  .scroll {
+    height: 62vh;
+    overflow: auto;
+  }
+  .search {
+    width: 100%;
+    padding: 20px 0;
+  }
+  .followed {
+    width: 100%;
+    margin: 0 0 0 5px;
+  }
+}
