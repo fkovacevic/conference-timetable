@@ -21,25 +21,18 @@ export function register(config) {
 				// This is running on localhost. Let's check if a service worker still exists or not.
 				checkValidServiceWorker(swUrl, config);
 
-
 				// Add some additional logging to localhost
 				navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
 					console.log('This web app is being served cache-first by a service worker');
 
-					if (Notification.permission === 'granted') {
-
-						return serviceWorkerRegistration.pushManager.subscribe({
-							userVisibleOnly: true,
-							applicationServerKey: 'BBpXgO5rxSXbMH0Ynk-4JxUWYU-43pyWKpshVWce-fC8JqM1cgnBzAuGFwD_P-yoAWMrW-XYe-SlmaTGztnwQKU'
-						});
-					}
 				})
-				.then((subscription) => {console.log(JSON.stringify(subscription));});;
+
 			} else {
 				// Is not localhost. Just register service worker
 				registerValidSW(swUrl, config);
 			}
 		});
+
 	}
 }
 
