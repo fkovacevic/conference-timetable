@@ -1,15 +1,19 @@
 import React from "react";
 
-import { Form, Input, Button, Checkbox, PageHeader } from "antd";
+import { Form, Input, Button } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { Alert } from "antd";
 import classes from "./Login.module.css";
 import { Link } from "react-router-dom";
-import { useState } from "react/cjs/react.development";
+import { useState, useContext } from "react/cjs/react.development";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+import AuthContext from "../../auth_store/auth-context";
 
 function Register(props) {
+
+  const authCtx = useContext(AuthContext);
+
   const [passErr, setPassErr] = useState(false);
   const history = useHistory();
   const onFinish = (values) => {
@@ -22,12 +26,13 @@ function Register(props) {
     } else {
       setPassErr(false);
       axios
-        .post("http://localhost:5000/api/Users/Register", {
+        .post("http://localhost:5000/api/Users", {
           ...values,
         })
         .then((result) => {
-          console.log(result);
-          localStorage.setItem("token", result.data.token);
+          console.log(result.data);
+
+          authCtx.login(result.data.token, result.data.id);
           history.push("/home");
         })
         .catch((err) => {

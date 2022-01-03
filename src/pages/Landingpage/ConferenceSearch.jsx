@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import classes from "./ConferenceSearch.module.css";
 import { Input } from "antd";
 import ConfrenceCard from "./ConfrenceCard";
 import EventFollow from "./EventFollow";
-import axios, { Axios } from "axios";
+import axios from "axios";
 import { useHistory } from "react-router-dom";
+import AuthContext from "../../auth_store/auth-context";
 
 const { Search } = Input;
 
 const getConfrences = () => {
   return [
     {
-      id: 1,
+      id: 12,
       title: "Event A pikica",
       description: "Event A Description",
       startAt: "2021-11-11T18:59:06.311058+00:00",
@@ -102,25 +103,74 @@ const getConfrences = () => {
 };
 function ConferenceSearch(props) {
   const history = useHistory();
+  const authCtx = useContext(AuthContext);
+
   const addToFollowed = (conf) => {
-    setMyEvents((old) => {
-      if (
-        old.filter((item) => {
-          return item.id === conf.id;
-        }).length > 0
-      ) {
-        return old;
-      }
-      return [...old, conf];
-    });
+    if (
+      myEvents.filter((item) => {
+        return item.id === conf.id;
+      }).length > 0
+    ) {
+      //Event already added
+      return;
+    } else {
+      axios
+        .post(
+          "http://localhost:5000/api/Users/" +
+            //localStorage.getItem("userid") +
+            authCtx.userid +
+            "/Events",
+          {
+            id: conf.id, // This is the body part
+          },
+          {
+            headers: {
+              Authorization: "Bearer " + authCtx.token, //localStorage.getItem("token"),
+            },
+          }
+        )
+        .then((result) => {
+          console.log(result.data ?? result);
+          setMyEvents((old) => {
+            return [...old, conf];
+          });
+        })
+        .catch((err) => {
+          console.log(err.message ?? err);
+          return;
+        });
+    }
   };
 
-  const removeFromFollowed = (id) => {
-    setMyEvents((old) => {
-      return old.filter((item) => {
-        return item.id !== id;
+  const removeFromFollowed = (idev) => {
+    axios
+      .delete(
+        "http://localhost:5000/api/Users/" +
+          //localStorage.getItem("userid") +
+          authCtx.userid +
+          "/Events",
+
+        {
+          headers: {
+            Authorization: "Bearer " + authCtx.token, //localStorage.getItem("token"),
+          },
+          data: {
+            id: idev, // This is the body part
+          },
+        }
+      )
+      .then((result) => {
+        console.log(result.data ?? result);
+        setMyEvents((old) => {
+          return old.filter((item) => {
+            return item.id !== idev;
+          });
+        });
+      })
+      .catch((err) => {
+        console.log(err.message ?? err);
+        return;
       });
-    });
   };
 
   const [allConferences, setAllConferences] = useState([]);
@@ -128,22 +178,49 @@ function ConferenceSearch(props) {
   const [myEvents, setMyEvents] = useState([]);
 
   useEffect(() => {
-    setAllConferences(getConfrences());
-    setFilteredConferences(getConfrences());
     axios
       .get("http://localhost:5000/api/Events", {
         headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
+          Authorization: "Bearer " + authCtx.token, //localStorage.getItem("token"),
         },
       })
       .then((result) => {
         console.log(result.data);
+        setAllConferences((konf) => {
+          return [...getConfrences(), ...result.data];
+        });
+        setFilteredConferences((konf) => {
+          return [...getConfrences(), ...result.data];
+        });
       })
       .catch((err) => {
         if (err.response.status === 401) {
-          localStorage.clear();
+          //localStorage.clear();
+          authCtx.logout();
           history.push("/login");
         }
+      });
+
+    axios
+      .get(
+        "http://localhost:5000/api/Users/" +
+          //localStorage.getItem("userid") +
+          authCtx.userid +
+          "/Events",
+        {
+          headers: {
+            Authorization: "Bearer " + authCtx.token, //localStorage.getItem("token"),
+          },
+        }
+      )
+      .then((result) => {
+        console.log("ovo je tvoje");
+        console.log(result.data ?? result);
+        setMyEvents(result.data);
+      })
+      .catch((err) => {
+        console.log(err.message ?? err);
+        return;
       });
   }, []);
 
@@ -172,6 +249,7 @@ function ConferenceSearch(props) {
             {filteredConferences.map((conf) => {
               return (
                 <ConfrenceCard
+                  key={conf.id}
                   addToFollowed={addToFollowed}
                   confObj={conf}
                   {...conf}
@@ -189,6 +267,7 @@ function ConferenceSearch(props) {
             myEvents.map((conf) => {
               return (
                 <EventFollow
+                  key={conf.id}
                   removeFromFollowed={removeFromFollowed}
                   confObj={conf}
                   {...conf}

@@ -1,19 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from "react";
+import ReactDOM from "react-dom";
 
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 
-import App from './App';
+import App from "./App";
 
-import './index.scss';
+import "./index.scss";
+import { AuthContextProvider } from "./auth_store/auth-context";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+  <AuthContextProvider>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  </AuthContextProvider>,
+  document.getElementById("root")
 );
 
 serviceWorkerRegistration.register();
-
-
