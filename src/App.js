@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 
 import Homepage from "./pages/Homepage/Homepage";
+import Calendar from "./pages/Calendar/Calendar";
 
 import "./index.scss";
 import Login from "./pages/Login/Login";
@@ -42,6 +43,11 @@ const App = () => {
           {authCtx.isLoggedIn && (
             <Route exact path="/home">
               <ConferenceSearch></ConferenceSearch>
+            </Route>
+          )}
+          {authCtx.isLoggedIn && (
+            <Route exact path="/calendar/:conferenceId">
+              <Calendar />
             </Route>
           )}
           <Route path="/tryout">

@@ -1,22 +1,21 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from 'react';
+
+import * as serviceWorkerRegistration from '../../serviceWorkerRegistration';
+import * as serviceWorkerSubscription from '../../serviceWorkerSubscription';
 
 import "./_homepage.scss";
 
 const Homepage = () => {
-  const [ispis, setIspis] = useState({});
-  useEffect(() => {
-    axios.get("http://localhost:5000/api/Events").then((result) => {
-      console.log(result.data[0]);
-      setIspis(result.data[0]);
-    });
-  }, []);
-
-  return (
-    <>
-      <div>{ispis.description ?? "nema jos"}</div>
-    </>
-  );
-};
+    useEffect(() => {
+        async function registerAndSubscribeUser() {
+            serviceWorkerRegistration.register();
+            return await serviceWorkerSubscription.subscribeUser();
+        }
+        registerAndSubscribeUser()
+            .then((pushSubscription) => console.log('User is subscribed with ', pushSubscription))
+            .catch((err) => console.log(err));
+    }, [])
+    return <div />
+}
 
 export default Homepage;

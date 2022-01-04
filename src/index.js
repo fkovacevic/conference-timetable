@@ -1,9 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
-
-import App from "./App";
+import App from './App';
 
 import "./index.scss";
 import { AuthContextProvider } from "./auth_store/auth-context";
@@ -16,5 +14,3 @@ ReactDOM.render(
   </AuthContextProvider>,
   document.getElementById("root")
 );
-
-serviceWorkerRegistration.register();
