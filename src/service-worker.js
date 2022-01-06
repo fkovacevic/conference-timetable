@@ -84,15 +84,25 @@ self.addEventListener('message', (event) => {
 
 // on receiving of push message, raise notification
 self.addEventListener('push', (event) => {
+	console.log(self.location.origin);
+	console.log(self.location.origin + '/calendar-64.png' );
 	var options = {
 		body: event.data.text(),
-		icon: 'images/calendar-64.png',
+		icon: '/calendar-64.png',
 		vibrate: [100, 50, 100],
-
+		actions: [
+			{ action: 'check', title: 'Check changes' },
+		]
 	  };
 	  event.waitUntil(
 		self.registration.showNotification('Notification!', options)
 	  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+	if (event.action === 'check') {
+		self.clients.openWindow('/');
+	}
 });
 
 // Any other custom service worker logic can go here.
