@@ -1,15 +1,16 @@
-import React, { useContext } from "react";
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+import React, { useContext } from 'react';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
-import Homepage from "./pages/Homepage/Homepage";
-import Calendar from "./pages/Calendar/Calendar";
+import Homepage from './pages/Homepage/Homepage';
+import Calendar from './pages/Calendar/Calendar';
+import CreateConference from './pages/Conference/CreateConference';
 
-import "./index.scss";
-import Login from "./pages/Login/Login";
-import Register from "./pages/Register/Register";
-import ConferenceSearch from "./pages/Landingpage/ConferenceSearch";
-import AuthContext from "./auth_store/auth-context";
-import { Button } from "antd";
+import './index.scss';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import ConferenceSearch from './pages/Landingpage/ConferenceSearch';
+import AuthContext from './auth_store/auth-context';
+import { Button } from 'antd';
 
 const App = () => {
   const authCtx = useContext(AuthContext);
@@ -52,6 +53,10 @@ const App = () => {
           )}
           <Route path="/tryout">
             <Homepage></Homepage>
+          </Route>
+
+          <Route exact path="/conference">
+            <CreateConference />
           </Route>
 
           <Route path="*">
