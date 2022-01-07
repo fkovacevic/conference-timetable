@@ -9,23 +9,58 @@ import axios from "axios";
 import { useHistory } from "react-router-dom";
 import AuthContext from "../../auth_store/auth-context";
 
+import { subscribeUser } from "../../serviceWorkerSubscription";
+import { register } from "../../serviceWorkerRegistration";
+
+export const subscribeAfterLogin = (userId, token) => {
+  subscribeUser.then((subscription) => {
+    console.log(subscription);
+    //     axios
+    //       .post(
+    //         `http://localhost:5000/api/Users/${userId}/Subscriptions`,
+    //         {
+    //           ...subscription, // This is the body part
+    //         },
+    //         {
+    //           headers: {
+    //             Authorization: "Bearer " + token, //localStorage.getItem("token"),
+    //           },
+    //         }
+    //       )
+    //       .then();
+  });
+};
+async function registerAndSubscribeUser() {
+  await register();
+  return await subscribeUser();
+}
+
 function Login(props) {
   const authCtx = useContext(AuthContext);
   const history = useHistory();
   const [passErr, setPassErr] = useState(false);
+
   const onFinish = (values) => {
     // console.log("Received values of form: ", values);
     axios
       .post("http://localhost:5000/api/Users/Sessions", {
         ...values,
       })
-      .then((result) => {
+      .then(async (result) => {
         console.log(result.data);
-   
 
         authCtx.login(result.data.token, result.data.userId);
+        //subscribeAfterLogin(result.data.userId, result.data.token);
+        // const filipGej = await subscribeUser();
+        // console.log(filipGej);
+
+        
 
         history.push("/home");
+        return registerAndSubscribeUser();
+      })
+      .then((sub) => {
+        console.log("jebem ti mater \n", sub);
       })
       .catch((err) => {
         console.log(console.log(err.message ?? err));
