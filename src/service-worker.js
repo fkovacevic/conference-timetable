@@ -84,8 +84,6 @@ self.addEventListener('message', (event) => {
 
 // on receiving of push message, raise notification
 self.addEventListener('push', (event) => {
-	console.log(self.location.origin);
-	console.log(self.location.origin + '/calendar-64.png' );
 	var options = {
 		body: event.data.text(),
 		icon: '/calendar-64.png',

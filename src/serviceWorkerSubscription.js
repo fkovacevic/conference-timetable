@@ -31,3 +31,9 @@ export const subscribeUser = () => {
 		// }
 	}).then((pushSubscription) => pushSubscription);
 }
+
+export const unsubscribeUser = () => {
+    return navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
+        return serviceWorkerRegistration.pushManager.getSubscription().then((subscription) => subscription.unsubscribe())
+    });
+}
