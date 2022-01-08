@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 
 import { Form, Input, Button, Checkbox, Alert } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
@@ -12,28 +12,7 @@ import AuthContext from "../../auth_store/auth-context";
 import { subscribeUser } from "../../serviceWorkerSubscription";
 import { register } from "../../serviceWorkerRegistration";
 
-export const subscribeAfterLogin = (userId, token) => {
-  subscribeUser.then((subscription) => {
-    console.log(subscription);
-    //     axios
-    //       .post(
-    //         `http://localhost:5000/api/Users/${userId}/Subscriptions`,
-    //         {
-    //           ...subscription, // This is the body part
-    //         },
-    //         {
-    //           headers: {
-    //             Authorization: "Bearer " + token, //localStorage.getItem("token"),
-    //           },
-    //         }
-    //       )
-    //       .then();
-  });
-};
-async function registerAndSubscribeUser() {
-  await register();
-  return await subscribeUser();
-}
+import { subscribeAfterLogin } from "../../common/common";
 
 function Login(props) {
   const authCtx = useContext(AuthContext);
@@ -49,18 +28,28 @@ function Login(props) {
       .then(async (result) => {
         console.log(result.data);
 
+        async function registerAndSubscribeUser() {
+          await register();
+          return await subscribeUser();
+        }
+
         authCtx.login(result.data.token, result.data.userId);
-        //subscribeAfterLogin(result.data.userId, result.data.token);
-        // const filipGej = await subscribeUser();
-        // console.log(filipGej);
-
-        
-
         history.push("/home");
-        return registerAndSubscribeUser();
-      })
-      .then((sub) => {
-        console.log("jebem ti mater \n", sub);
+
+        console.log("ispis login");
+
+        var sub = await registerAndSubscribeUser();
+
+        if (sub) {
+          sub = JSON.parse(JSON.stringify(sub));
+          const { keys, endpoint } = sub;
+          console.log(keys, endpoint);
+          // console.log("AWAIT piki je debel sad se subsrakjbam ide config! \n");
+          // console.log(JSON.stringify(sub));
+          subscribeAfterLogin(result.data.userId, result.data.token, sub);
+        } else {
+          console.log("eto sranje");
+        }
       })
       .catch((err) => {
         console.log(console.log(err.message ?? err));

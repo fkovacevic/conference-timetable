@@ -1,17 +1,20 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 
 import { Form, Input, Button } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { Alert } from "antd";
 import classes from "./Login.module.css";
 import { Link } from "react-router-dom";
-import { useState, useContext } from "react/cjs/react.development";
+// import { useState, useContext } from "react/cjs/react.development"; remove this
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import AuthContext from "../../auth_store/auth-context";
+import { subscribeUser } from "../../serviceWorkerSubscription";
+import { register } from "../../serviceWorkerRegistration";
+
+import { subscribeAfterLogin } from "../../common/common";
 
 function Register(props) {
-
   const authCtx = useContext(AuthContext);
 
   const [passErr, setPassErr] = useState(false);
@@ -29,11 +32,29 @@ function Register(props) {
         .post("http://localhost:5000/api/Users", {
           ...values,
         })
-        .then((result) => {
+        .then(async (result) => {
           console.log(result.data);
+
+          async function registerAndSubscribeUser() {
+            await register();
+            return await subscribeUser();
+          }
 
           authCtx.login(result.data.token, result.data.id);
           history.push("/home");
+
+          console.log("ispis registracija");
+
+          var sub = await registerAndSubscribeUser();
+
+          if (sub) {
+            sub = JSON.parse(JSON.stringify(sub));
+            const { keys, endpoint } = sub;
+            console.log(keys, endpoint);
+            subscribeAfterLogin(result.data.id, result.data.token, sub);
+          } else {
+            console.log("eto sranje");
+          }
         })
         .catch((err) => {
           console.log(err.message ?? err);
