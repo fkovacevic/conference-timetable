@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
 
 // let logoutTimer;
@@ -5,7 +6,7 @@ import React, { useCallback, useEffect, useState } from "react";
 const AuthContext = React.createContext({
   token: "",
   isLoggedIn: false,
-  login: (token,uid) => {},
+  login: (token, uid) => {},
   logout: () => {},
   userid: undefined,
 });
@@ -29,15 +30,32 @@ export const AuthContextProvider = (props) => {
 
   const userIsLoggedIN = !!token;
 
-  const logoutHandler = useCallback(() => {
+  const logoutHandler = () => {
+    var uId = userid;
+    var uToken = token;
     setToken(null);
     setUserid(undefined);
 
     localStorage.removeItem("token");
     localStorage.removeItem("userid");
-
+    var subId = localStorage.getItem("subId");
+    axios
+      .delete(`http://localhost:5000/api/Users/${uId}/Subscriptions`, {
+        headers: {
+          Authorization: "Bearer " + uToken, //localStorage.getItem("token"),
+        },
+        data: {
+          id: subId, // This is the body part
+        },
+      })
+      .then((res) => {
+        console.log("Uspio si deletat s --> ", res.status);
+      })
+      .catch((err) => {
+        console.log(err.message ?? err);
+      });
     window.location.assign("/login");
-  }, []);
+  };
 
   const loginHandler = (token, userid) => {
     console.log("token je sad " + token);

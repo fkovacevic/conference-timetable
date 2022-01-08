@@ -10,13 +10,35 @@ import Register from "./pages/Register/Register";
 import ConferenceSearch from "./pages/Landingpage/ConferenceSearch";
 import AuthContext from "./auth_store/auth-context";
 import { Button } from "antd";
+import axios from "axios";
 
 const App = () => {
   const authCtx = useContext(AuthContext);
+  const unSub = () => {
+    const subId = localStorage.getItem("subId");
+    axios
+      .delete(
+        `http://localhost:5000/api/Users/${authCtx.userid}/Subscriptions`,
+        {
+          headers: {
+            Authorization: "Bearer " + authCtx.token, //localStorage.getItem("token"),
+          },
+          data: {
+            id: subId, // This is the body part
+          },
+        }
+      )
+      .then((res) => {
+        console.log("Uspio si deletat s --> ", res.status);
+      })
+      .catch((err) => {
+        console.log(err.message ?? err);
+      });
+  };
 
   return (
     <>
-      <Button onClick={authCtx.logout}>Logout</Button>
+      {authCtx.isLoggedIn && <Button onClick={authCtx.logout}>Logout</Button>}
       <BrowserRouter>
         <Switch>
           {!authCtx.isLoggedIn && (

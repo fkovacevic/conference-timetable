@@ -19,6 +19,8 @@ export const subscribeAfterLogin = (userId, token, subscription) => {
   axios(config)
     .then((res) => {
       console.log("Response je " + res.status);
+      console.log("Id suba je " + res.data.id);
+      localStorage.setItem("subId", res.data.id);
     })
     .catch((err) => {
       console.log(err);
