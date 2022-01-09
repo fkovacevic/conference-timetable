@@ -28,4 +28,19 @@ export const subscribeAfterLogin = (userId, token, subscription) => {
     });
 };
 
-export const eraseSubscribtionOnLogout = (userId, token) => {};
+export const unsubscribeUser = () => {
+  // caches.delete()
+  return navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
+    return serviceWorkerRegistration.pushManager
+      .getSubscription()
+      .then((subscription) => subscription.unsubscribe());
+  });
+};
+
+export const unsubscribeUserReturnSubscription = () => {
+  return navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
+    return serviceWorkerRegistration.pushManager
+      .getSubscription()
+      .then((subscription) => subscription);
+  });
+};

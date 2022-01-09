@@ -1,3 +1,5 @@
+@import "../../constants/styles/color-constants";
+
 .flex {
   display: flex;
 }
@@ -8,25 +10,52 @@
   width: 80%;
   justify-content: center;
   margin-bottom: 20px;
+  button {
+    background-color: $theme-blue;
+    color: $background-color;
+    border: none;
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: $background-color;
+      color: $theme-blue;
+    }
+  }
 }
 
 .search {
   width: 60%;
 }
 .followed {
-  border-left: 3px solid lightskyblue;
   color: white;
   width: 30%;
   padding: 20px;
   margin: 0 30px;
-  background-color: lightblue;
+  background-color: $theme-blue;
+  h2 {
+    color: $background-color;
+  }
+
+  button {
+    background-color: $background-color;
+    color: $theme-blue;
+    border: none;
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: $theme-blue;
+      color: $background-color;
+      border: $background-color 1px solid;
+    }
+  }
 }
 .adaptiveFlex {
   margin-top: 10%;
   display: flex;
+  //background-color: $background-color;
 }
 .noneFollowed {
-  color: black;
+  color: $background-color;
 }
 .scroll {
   height: 800px;

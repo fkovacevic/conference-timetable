@@ -3,7 +3,7 @@ import React, { useContext, useState } from "react";
 import { Form, Input, Button } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { Alert } from "antd";
-import classes from "./Login.module.css";
+import classes from "./Register.module.scss";
 import { Link } from "react-router-dom";
 // import { useState, useContext } from "react/cjs/react.development"; remove this
 import axios from "axios";
@@ -40,7 +40,7 @@ function Register(props) {
             return await subscribeUser();
           }
 
-          authCtx.login(result.data.token, result.data.id);
+          authCtx.login(result.data.token, result.data.id,result.data.isAdmin);
           history.push("/home");
 
           console.log("ispis registracija");
@@ -66,7 +66,10 @@ function Register(props) {
     <div className={classes.flexwrapper}>
       <div className={`${classes.flex} ${classes.loginContainer}`}>
         <div>
-          <h1>Confrence timetable</h1>
+          <h1>Conference Timetable</h1>
+          <div className={classes.imgSizer}>
+            <img src="calendar-192.png"></img>
+          </div>
           <Form
             name="normal_login"
             className="login-form"
@@ -112,22 +115,28 @@ function Register(props) {
               <Alert message="Passwords don't match!" type="error" showIcon />
             )}
 
-            <Form.Item>
+            {/* <Form.Item>
               <Link className="login-form-forgot" to="">
                 Forgot password
               </Link>
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="login-form-button"
-              >
-                Register
-              </Button>
+              <div className={classes.flexBtn}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="login-form-button"
+                >
+                  Register
+                </Button>
+              </div>
+
               <p>
-                Or <Link to="/login">Login</Link>
+                Or{" "}
+                <Link className={classes.loginLink} to="/login">
+                  Login
+                </Link>
               </p>
             </Form.Item>
           </Form>

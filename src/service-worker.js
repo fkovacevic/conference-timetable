@@ -64,6 +64,24 @@ registerRoute(
 	})
 );
 
+//cache all events and user events
+//REMEMBER TO CLEAR CACHE AFTER
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/Events'),
+	new NetworkFirst({
+		cacheName: 'eventovi',
+	})
+);
+
+//cache all events and user events
+//REMEMBER TO CLEAR CACHE AFTER
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/Users'),
+	new NetworkFirst({
+		cacheName: 'userEvents',
+	})
+);
+
 // cache everything starting with /api/sections/
 // use network first since it might change often
 registerRoute(

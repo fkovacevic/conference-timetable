@@ -11,6 +11,7 @@ import ConferenceSearch from "./pages/Landingpage/ConferenceSearch";
 import AuthContext from "./auth_store/auth-context";
 import { Button } from "antd";
 import axios from "axios";
+import { unsubscribeUserReturnSubscription } from "./common/common";
 
 const App = () => {
   const authCtx = useContext(AuthContext);
@@ -28,7 +29,10 @@ const App = () => {
           },
         }
       )
-      .then((res) => {
+      .then(async (res) => {
+        const sub = await unsubscribeUserReturnSubscription();
+        console.log(sub);
+        console.log("endpoint je " + sub.endpoint);
         console.log("Uspio si deletat s --> ", res.status);
       })
       .catch((err) => {
@@ -38,7 +42,10 @@ const App = () => {
 
   return (
     <>
+      {authCtx.isAdmin && <p>Admin je!</p>}
+      {!authCtx.isAdmin && <p>Nije admin!</p>}
       {authCtx.isLoggedIn && <Button onClick={authCtx.logout}>Logout</Button>}
+      {/* <Button onClick={unSub}>an sab ebbe</Button> */}
       <BrowserRouter>
         <Switch>
           {!authCtx.isLoggedIn && (

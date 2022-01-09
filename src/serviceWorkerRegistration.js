@@ -9,17 +9,22 @@ const isLocalhost = Boolean(
 
 export function register(config) {
 	if ('serviceWorker' in navigator) {
+		console.log('tu1')
 		const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
 		if (publicUrl.origin !== window.location.origin) {
+			console.log('ako ovdje ude moki nije mali peder')
 			return;
 		}
 
 		window.addEventListener('load', () => {
 			const swUrl = `${process.env.REACT_APP_PATH}/service-worker.js`;
+			console.log('tu2', swUrl)
 
 			if (isLocalhost) {
 				// This is running on localhost. Let's check if a service worker still exists or not.
 				checkValidServiceWorker(swUrl, config);
+
+				console.log('tu3')
 
 				// Add some additional logging to localhost
 				navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
@@ -29,6 +34,7 @@ export function register(config) {
 
 			} else {
 				// Is not localhost. Just register service worker
+				console.log('tu4')
 				registerValidSW(swUrl, config);
 			}
 		});
@@ -45,7 +51,7 @@ function registerValidSW(swUrl, config) {
 				if (installingWorker == null) {
 					return;
 				}
-
+				console.log('tu5')
 				installingWorker.onstatechange = () => {
 					if (installingWorker.state === 'installed') {
 						if (navigator.serviceWorker.controller) {

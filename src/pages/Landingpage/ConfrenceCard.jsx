@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "antd";
-import classes from "./ConfrenceCard.module.css";
+import classes from "./ConfrenceCard.module.scss";
 const transformDate = (m) => {
   return (
     ("0" + m.getUTCHours()).slice(-2) +

@@ -3,7 +3,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { Form, Input, Button, Checkbox, Alert } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 
-import classes from "./Login.module.css";
+import classes from "./Login.module.scss";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
@@ -33,7 +33,7 @@ function Login(props) {
           return await subscribeUser();
         }
 
-        authCtx.login(result.data.token, result.data.userId);
+        authCtx.login(result.data.token, result.data.userId,false);
         history.push("/home");
 
         console.log("ispis login");
@@ -64,7 +64,11 @@ function Login(props) {
     <div className={classes.flexwrapper}>
       <div className={`${classes.flex} ${classes.loginContainer}`}>
         <div>
-          <h1>Confrence timetable</h1>
+          <h1>Conference Timetable</h1>
+          <div className={classes.imgSizer}>
+            <img src="calendar-192.png"></img>
+          </div>
+
           <Form
             name="normal_login"
             className="login-form"
@@ -97,7 +101,7 @@ function Login(props) {
             {passErr && (
               <Alert message="Invalid credentials" type="error" showIcon />
             )}
-            <Form.Item>
+            {/* <Form.Item>
               <Form.Item name="remember" valuePropName="checked" noStyle>
                 <Checkbox>Remember me</Checkbox>
               </Form.Item>
@@ -105,18 +109,23 @@ function Login(props) {
               <a className="login-form-forgot" href="">
                 Forgot password
               </a>
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="login-form-button"
-              >
-                Log in
-              </Button>
+              <div className={classes.flexBtn}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="login-form-button"
+                >
+                  Log in
+                </Button>
+              </div>
+
               <p>
-                Or <Link to="/register">register now!</Link>
+                <Link className={classes.loginLink} to="/register">
+                  register now!
+                </Link>
               </p>
             </Form.Item>
           </Form>

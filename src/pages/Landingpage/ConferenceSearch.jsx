@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState } from "react";
-import classes from "./ConferenceSearch.module.css";
+import classes from "./ConferenceSearch.module.scss";
 import { Input } from "antd";
 import ConfrenceCard from "./ConfrenceCard";
 import EventFollow from "./EventFollow";
