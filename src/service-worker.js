@@ -95,6 +95,8 @@ self.addEventListener('push', (event) => {
 	  event.waitUntil(
 		self.registration.showNotification('Notification!', options)
 	  );
+	  const swListener = new BroadcastChannel('swListener');
+	  swListener.postMessage(event.data.text());
 });
 
 self.addEventListener('notificationclick', (event) => {

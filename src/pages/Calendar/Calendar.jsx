@@ -9,6 +9,7 @@ import { sectionsInfoToCalendarEvents } from './helper';
 import { numberToHexColor } from '../../common/common'
 import SectionModal from './SectionModal/SectionModal'
 import { getConference, getConferenceSections } from '../../services/ConferenceService'
+import NavigationBar from '../../common/NavigationBar/NavigationBar';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './_calendar.scss';
@@ -134,6 +135,7 @@ const Calendar = () => {
 
     return (
 		isLoading ?
+
 		<div className="calendar--loading">
 			<Spin size='large' tip='Loading calendar...' />
 		</div> :
