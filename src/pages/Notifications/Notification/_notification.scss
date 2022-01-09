@@ -1,0 +1,39 @@
+@import '../../../constants/styles/color-constants';
+
+
+.notification {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+
+    &__changes{
+        display: flex;
+        flex-direction: row;
+    }
+    &__old {
+        width: 50%;
+        padding: 4px;
+        color: red;
+    }
+    &__new {
+        width: 50%;
+        padding: 4px;
+        color: rgb(34, 204, 34);
+    }
+    &__button {
+        display: flex;
+        justify-content: center;
+        .ant-btn {
+            margin-top: 12px;
+            background-color: $theme-blue;
+            color: $background-color;
+            border: $background-color;
+            width: 100%;
+            &:hover, &:focus, &:active {
+                background-color: $background-color;
+                color: $theme-blue;
+                border: $theme-blue;
+            }
+        }
+    }
+}

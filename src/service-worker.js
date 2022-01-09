@@ -104,13 +104,23 @@ self.addEventListener('message', (event) => {
 self.addEventListener('push', (event) => {
 	var options = {
 		body: event.data.text(),
-		icon: 'images/calendar-64.png',
+		icon: '/calendar-64.png',
 		vibrate: [100, 50, 100],
-
+		actions: [
+			{ action: 'check', title: 'Check changes' },
+		]
 	  };
 	  event.waitUntil(
 		self.registration.showNotification('Notification!', options)
 	  );
+	  const swListener = new BroadcastChannel('swListener');
+	  swListener.postMessage(event.data.text());
+});
+
+self.addEventListener('notificationclick', (event) => {
+	if (event.action === 'check') {
+		self.clients.openWindow('/');
+	}
 });
 
 // Any other custom service worker logic can go here.

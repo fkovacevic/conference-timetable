@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 
 import Homepage from "./pages/Homepage/Homepage";
 import Calendar from "./pages/Calendar/Calendar";
+import Notifications from "./pages/Notifications/Notifications";
+import NavigationBar from "./common/NavigationBar/NavigationBar";
 
 import "./index.scss";
 import Login from "./pages/Login/Login";
@@ -42,11 +44,9 @@ const App = () => {
 
   return (
     <>
-      {authCtx.isAdmin && <p>Admin je!</p>}
-      {!authCtx.isAdmin && <p>Nije admin!</p>}
-      {authCtx.isLoggedIn && <Button onClick={authCtx.logout}>Logout</Button>}
       {/* <Button onClick={unSub}>an sab ebbe</Button> */}
       <BrowserRouter>
+        {authCtx.isLoggedIn && <NavigationBar></NavigationBar>}
         <Switch>
           {!authCtx.isLoggedIn && (
             <Route exact path="/">
@@ -82,7 +82,11 @@ const App = () => {
           <Route path="/tryout">
             <Homepage></Homepage>
           </Route>
-
+          {authCtx.isLoggedIn && (
+            <Route exact path="/notifications">
+              <Notifications />
+            </Route>
+          )}
           <Route path="*">
             <Redirect to="/" />
           </Route>

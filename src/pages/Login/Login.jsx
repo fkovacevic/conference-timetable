@@ -33,7 +33,7 @@ function Login(props) {
           return await subscribeUser();
         }
 
-        authCtx.login(result.data.token, result.data.userId,false);
+        authCtx.login(result.data.token, result.data.userId, false);
         history.push("/home");
 
         console.log("ispis login");
@@ -123,6 +123,7 @@ function Login(props) {
               </div>
 
               <p>
+                Or{" "}
                 <Link className={classes.loginLink} to="/register">
                   register now!
                 </Link>

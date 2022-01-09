@@ -23,16 +23,19 @@ export const subscribeUser = () => {
       // 	Notification.requestPermission().then((permission) => {
       // 		// If the user accepts, only then subscribe
 
-      // 		if (permission === "granted") {
-      // 			return serviceWorkerRegistration.pushManager.subscribe({
-      // 				userVisibleOnly: true,
-      // 				applicationServerKey,
-      // 			});
-      // 		}
-      // 	});
-      // }
-    })
-    .then((pushSubscription) => {
-      return pushSubscription;
+		// 		if (permission === "granted") {
+		// 			return serviceWorkerRegistration.pushManager.subscribe({
+		// 				userVisibleOnly: true,
+		// 				applicationServerKey,
+		// 			});
+		// 		}
+		// 	});
+		// }
+	}).then((pushSubscription) => pushSubscription);
+}
+
+export const unsubscribeUser = () => {
+    return navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
+        return serviceWorkerRegistration.pushManager.getSubscription().then((subscription) => subscription.unsubscribe())
     });
-};
+}
