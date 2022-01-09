@@ -13,7 +13,7 @@ import { subscribeUser } from "../../serviceWorkerSubscription";
 import { register } from "../../serviceWorkerRegistration";
 
 import { subscribeAfterLogin } from "../../common/common";
-
+import apiPath from "../../constants/api/apiPath";
 function Register(props) {
   const authCtx = useContext(AuthContext);
 
@@ -29,7 +29,7 @@ function Register(props) {
     } else {
       setPassErr(false);
       axios
-        .post("http://localhost:5000/api/Users", {
+        .post(apiPath+"/Users", {
           ...values,
         })
         .then(async (result) => {

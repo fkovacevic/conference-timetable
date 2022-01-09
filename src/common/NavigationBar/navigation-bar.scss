@@ -2,6 +2,8 @@
 
 .navigation-bar {
     height:50px;
+	position: sticky;
+	top: 0;
     background-color: $theme-blue;
     display: flex;
     font-family: monospace;
@@ -10,6 +12,7 @@
     position: top;
     top:0;
     left:0;
+	z-index: 3;
 
 	&__proba {
 		color: red;

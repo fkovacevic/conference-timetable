@@ -13,6 +13,7 @@ import { subscribeUser } from "../../serviceWorkerSubscription";
 import { register } from "../../serviceWorkerRegistration";
 
 import { subscribeAfterLogin } from "../../common/common";
+import apiPath from "../../constants/api/apiPath";
 
 function Login(props) {
   const authCtx = useContext(AuthContext);
@@ -22,7 +23,7 @@ function Login(props) {
   const onFinish = (values) => {
     // console.log("Received values of form: ", values);
     axios
-      .post("http://localhost:5000/api/Users/Sessions", {
+      .post(apiPath + "/Users/Sessions", {
         ...values,
       })
       .then(async (result) => {

@@ -6,6 +6,7 @@ import EventFollow from "./EventFollow";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import AuthContext from "../../auth_store/auth-context";
+import apiPath from "../../constants/api/apiPath";
 
 const { Search } = Input;
 
@@ -116,7 +117,8 @@ function ConferenceSearch(props) {
     } else {
       axios
         .post(
-          "http://localhost:5000/api/Users/" +
+          apiPath +
+            "/Users/" +
             //localStorage.getItem("userid") +
             authCtx.userid +
             "/Events",
@@ -145,7 +147,8 @@ function ConferenceSearch(props) {
   const removeFromFollowed = (idev) => {
     axios
       .delete(
-        "http://localhost:5000/api/Users/" +
+        apiPath +
+          "/Users/" +
           //localStorage.getItem("userid") +
           authCtx.userid +
           "/Events",
@@ -179,7 +182,7 @@ function ConferenceSearch(props) {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/Events", {
+      .get(apiPath + "/Events", {
         headers: {
           Authorization: "Bearer " + authCtx.token, //localStorage.getItem("token"),
         },
@@ -203,7 +206,8 @@ function ConferenceSearch(props) {
 
     axios
       .get(
-        "http://localhost:5000/api/Users/" +
+        apiPath +
+          "/Users/" +
           //localStorage.getItem("userid") +
           authCtx.userid +
           "/Events",

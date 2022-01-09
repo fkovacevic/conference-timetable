@@ -23,7 +23,7 @@ const retrieveToken = () => {
 export const AuthContextProvider = (props) => {
   const tokenData = retrieveToken();
   const retievedUserid = localStorage.getItem("userid");
-  const retievedAdministrator = !!localStorage.getItem("isAdmin");
+  const retievedAdministrator = localStorage.getItem("isAdmin") === "true";
 
   //console.log(tokenData);
 
@@ -36,14 +36,15 @@ export const AuthContextProvider = (props) => {
   const logoutHandler = () => {
     var uId = userid;
     var uToken = token;
-    setToken(null);
-    setUserid(undefined);
-    setIsAdministrator(false);
 
     localStorage.removeItem("token");
     localStorage.removeItem("userid");
     localStorage.removeItem("isAdmin");
-    
+
+    setToken(null);
+    setUserid(undefined);
+    setIsAdministrator(false);
+
     var subId = localStorage.getItem("subId");
     axios
       .delete(`http://localhost:5000/api/Users/${uId}/Subscriptions`, {

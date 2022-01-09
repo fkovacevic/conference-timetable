@@ -98,12 +98,12 @@ const NavigationBar = () => {
           </div>
         </Link>
       </Menu.Item>
-      {!authCtx.isAdmin && (
+      {authCtx.isAdmin && (
         <Menu.Item key="admin" className="navigation-bar__menu-item">
           <Link to="/admin">
             <div className="navigation-bar__option-container">
               <UserOutlined />
-              <div className="navigation-bar__option__name">Admin</div>
+              <div className="navigation-bar__option__name">Adminn</div>
             </div>
           </Link>
         </Menu.Item>
@@ -215,7 +215,7 @@ const NavigationBar = () => {
           </Link>
           {authCtx.isAdmin && (
             <Link to="/admin">
-              <Button icon={<UserOutlined />}>Admin</Button>
+              <Button icon={<UserOutlined />}>Adminn</Button>
             </Link>
           )}
           <Link onClick={authCtx.logout}>
