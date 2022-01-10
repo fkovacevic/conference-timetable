@@ -12,4 +12,3 @@ export const sectionsInfoToCalendarEvents = (sections) => sections.map((section)
     chairs: section.chairs,
     id: section.id,
 }));
-
