@@ -3,7 +3,8 @@ import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
 import Homepage from './pages/Homepage/Homepage';
 import Calendar from './pages/Calendar/Calendar';
-import CreateConference from './pages/Conference/CreateConference';
+import AdminConferencePage from './pages/admin/Conference/AdminConferencePage';
+import AdminConferencesPage from './pages/admin/Conferences/AdminConferencesPage';
 
 import './index.scss';
 import Login from './pages/Login/Login';
@@ -55,9 +56,18 @@ const App = () => {
             <Homepage></Homepage>
           </Route>
 
-          <Route exact path="/conference">
-            <CreateConference />
+          <Route exact path="/conferences">
+            <AdminConferencesPage />
           </Route>
+
+          <Route exact path="/conferences/new">
+            <AdminConferencePage />
+          </Route>
+
+          <Route exact path="/conferences/:conferenceId">
+            <AdminConferencePage />
+          </Route>
+
 
           <Route path="*">
             <Redirect to="/" />

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Layout } from 'antd';
 import 'antd/dist/antd.css';
-import './create-conference.scss';
+import './admin-conference-page.scss';
 import moment from 'moment';
 
-import { createEvent } from '../../services/EventService';
+import { createEvent } from '../../../services/EventService';
 
-import { addEventLocation } from '../../services/LocationService';
+import { addEventLocation } from '../../../services/LocationService';
 
 import { Form, Input, DatePicker, Button, Select, InputNumber } from 'antd';
 const { RangePicker } = DatePicker;
@@ -53,7 +53,7 @@ const emptySectionForm = {
   backgroundColor: ''
 };
 
-const CreateConference = () => {
+const AdminConferencePage = () => {
   const [locations, setLocations] = useState(['']);
   const [chairmen, setChairmen] = useState(['']);
   const [presentations, setPresentations] = useState([emptyPresentationForm]);
@@ -275,4 +275,4 @@ const CreateConference = () => {
   );
 };
 
-export default CreateConference;
+export default AdminConferencePage;
