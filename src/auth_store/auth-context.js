@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
 import { unsubscribeUserReturnSubscription } from "../common/common";
+import apiPath from "../constants/api/apiPath";
+
 // let logoutTimer;
 
 const AuthContext = React.createContext({
@@ -47,7 +49,7 @@ export const AuthContextProvider = (props) => {
 
     var subId = localStorage.getItem("subId");
     axios
-      .delete(`http://localhost:5000/api/Users/${uId}/Subscriptions`, {
+      .delete(`${apiPath}/Users/${uId}/Subscriptions`, {
         headers: {
           Authorization: "Bearer " + uToken, //localStorage.getItem("token"),
         },

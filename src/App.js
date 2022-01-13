@@ -17,6 +17,7 @@ import { unsubscribeUserReturnSubscription } from "./common/common";
 
 const App = () => {
   const authCtx = useContext(AuthContext);
+  
   const unSub = () => {
     const subId = localStorage.getItem("subId");
     axios

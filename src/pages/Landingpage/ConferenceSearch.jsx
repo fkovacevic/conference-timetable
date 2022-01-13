@@ -197,10 +197,13 @@ function ConferenceSearch(props) {
         });
       })
       .catch((err) => {
-        if (err.response.status === 401) {
+        if (err.response && err.response.status === 401) {
           //localStorage.clear();
           authCtx.logout();
           history.push("/login");
+        }
+        else{
+          console.log(err.message ?? err)
         }
       });
 

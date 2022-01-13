@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import apiPath from "../constants/api/apiPath";
 export const numberToHexColor = (numberColor) => {
   return numberColor.toString(16);
 };
@@ -7,7 +7,7 @@ export const numberToHexColor = (numberColor) => {
 export const subscribeAfterLogin = (userId, token, subscription) => {
   var config = {
     method: "post",
-    url: `http://localhost:5000/api/Users/${userId}/Subscriptions`,
+    url: `${apiPath}/Users/${userId}/Subscriptions`,
     headers: {
       accept: "application/json",
       Authorization: "Bearer " + token,
