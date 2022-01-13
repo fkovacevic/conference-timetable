@@ -24,3 +24,14 @@ export const getConferenceSections = async(conferenceId) => {
     const { data } = await axios.get(`${apiPath}/events/${conferenceId}/sections`, config);
     return data;
 }
+
+export const getConferenceLocations = async(conferenceId) => {
+    const token = localStorage.getItem('token');
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    };
+    const { data } = await axios.get(`${apiPath}/events/${conferenceId}/locations`, config);
+    return data;
+}

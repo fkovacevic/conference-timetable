@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 import { Calendar as ReactCalendar, momentLocalizer } from 'react-big-calendar'
 import { Input, Spin } from 'antd';
-import { CalendarTwoTone, WarningFilled } from '@ant-design/icons'
+import { CalendarTwoTone } from '@ant-design/icons'
 
-import { sectionsInfoToCalendarEvents } from './helper';
+import { sectionsInfoToCalendarEvents, locationsToMap } from './helper';
 import { numberToHexColor } from '../../common/common'
 import SectionModal from './SectionModal/SectionModal'
-import { getConference, getConferenceSections } from '../../services/ConferenceService'
-import NavigationBar from '../../common/NavigationBar/NavigationBar';
+import { getConference, getConferenceSections, getConferenceLocations } from '../../services/ConferenceService'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './_calendar.scss';
@@ -82,25 +81,36 @@ const Calendar = () => {
 	const [filteredEvents, setFilteredEvents] = useState([]);
 	const [conference, setConference] = useState();
 	const [allSections, setAllSections] = useState([]);
+	const [locationsMap, setLocationsMap] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [defaultView, ] = useState(window.innerWidth > 600 ? 'week' : 'day');
 	const [currentDate, setCurrentDate] = useState(undefined)
+	const fetchedSections = useRef([]);
 
     useEffect(() => {
 		async function fetchData() {
 			const conference = await getConference(conferenceId);
 			const sections = await getConferenceSections(conferenceId);
-			setConference(conference);
-			setFilteredEvents(sectionsInfoToCalendarEvents(sections));
-			setAllSections(sectionsInfoToCalendarEvents(sections));
-			setCurrentDate(new Date(conference.startAt));
+			const locations = await getConferenceLocations(conferenceId);
 
+			setConference(conference);
+			setCurrentDate(new Date(conference.startAt));
+			fetchedSections.current = sections;
+			setLocationsMap(locationsToMap(locations));
 		}
 		setIsLoading(true);
 		fetchData().then(() => setIsLoading(false));
     }, [conferenceId]);
 
-    const onSelectEvent = (event) => {
+	useEffect(() => {
+		const calendarEvents = sectionsInfoToCalendarEvents(fetchedSections.current, locationsMap);
+		setFilteredEvents(calendarEvents);
+		setAllSections(calendarEvents);
+
+	}, [locationsMap])
+
+
+    function onSelectEvent(event) {
         showEventModal(true);
         setOpenedSectionInfo(event);
     }
@@ -130,23 +140,16 @@ const Calendar = () => {
   	if (conference) {
 		const { title, startAt, endAt } = conference;
 		conferenceInfo = `${title}: ${moment(startAt).format('hh:mm A')} - ${moment(endAt).format('hh:mm A')}`
-	  }
+	}
 
 
     return (
 		isLoading ?
-
 		<div className="calendar--loading">
 			<Spin size='large' tip='Loading calendar...' />
 		</div> :
 		<>
 			<div className="calendar">
-				<div className="calendar__notification">
-					<WarningFilled color='white'></WarningFilled>
-					<div className="calendar__notification__text">
-						This event has been changed since the time you've subscribed!
-					</div>
-				</div>
 				<div className="calendar__header-wrapper">
 					<div className="calendar__header">
 						<div className="calendar__header__info">
@@ -169,7 +172,7 @@ const Calendar = () => {
 							events={allSections}
 							defaultView={defaultView}
 							onSelectEvent={onSelectEvent}
-							views={[defaultView]}
+							views={['day', 'week']}
 							eventPropGetter={eventPropGetter}
 							date={currentDate}
 							onNavigate={date => {

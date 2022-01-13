@@ -112,6 +112,7 @@ const SectionModal = ({ visible, setVisibility, sectionInfo }) => {
             visible={visible}
             title={title}
             onCancel={onClose}
+            footer={null}
         >
 		{isLoading ?
 		<div className='section-modal--loading'>

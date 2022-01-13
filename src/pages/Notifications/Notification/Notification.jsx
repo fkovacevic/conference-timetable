@@ -1,30 +1,54 @@
 import React from 'react';
-import moment from 'moment';
 import { Link } from 'react-router-dom';
-import { Collapse, Button } from 'antd';
+import { Button } from 'antd';
 
+import EditType from './EditType';
+import DeleteType from './DeleteType';
+import AddType from './AddType';
 import './_notification.scss';
 
 
-const Notification = ({ eventChanges, eventId}) => {
 
-    return  eventChanges && (
-        <div className="notification">
-            <div className="notification__changes">
-                <div className="notification__old">
-                    <b>Old event start time: </b>{moment(eventChanges.oldStart).format('hh:mm A')}
+const Notification = ({ eventChanges, eventId }) => {
+
+    let changeType = '';
+    if (eventChanges.old && eventChanges.new) {
+        changeType = 'EDITED';
+    } else if (eventChanges.old && !eventChanges.new) {
+        changeType = 'DELETED';
+    } else if(!eventChanges.old && eventChanges.new) {
+        changeType = 'ADDED';
+    }
+
+    function renderChanges(){
+        switch (changeType) {
+            case 'EDITED':
+                return (
+                <EditType newObject={eventChanges.new} oldObject={eventChanges.old}/>
+                );
+            case 'DELETED':
+                return (
+                    <DeleteType oldObject={eventChanges.old}/>
+                )
+            case 'ADDED' :
+                return (
+                    <AddType newObject={eventChanges.new}/>
+                )
+            default: return null;
+        }
+    }
+    return (
+        <>
+            {renderChanges()}
+            {
+                <div className="notification__button">
+                    <Link to={`/calendar/${eventId}`}>
+                        <Button>See New Schedule</Button>
+                    </Link>
                 </div>
-                <div className="notification__new">
-                    <b>New event start time: </b>{moment(eventChanges.newStart).format('hh:mm A')}
-                </div>
-            </div>
-            <div className="notification__button">
-                <Link to={`/calendar/${eventId}`}>
-                    <Button>See New Schedule</Button>
-                </Link>
-            </div>
-        </div>
-    );
+            }
+        </>
+    )
 }
 
 export default Notification;

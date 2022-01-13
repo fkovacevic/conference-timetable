@@ -6,7 +6,7 @@
     display: flex;
     flex-direction: column;
 
-    &__changes{
+    &__changes {
         display: flex;
         flex-direction: row;
     }
@@ -14,11 +14,54 @@
         width: 50%;
         padding: 4px;
         color: red;
+        &__title {
+            display: flex;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        &:first-letter {
+            text-transform:capitalize;
+        }
+    }
+    &__single-change {
+        width: 100%;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    &__only-old {
+        color: red;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        &__title {
+            display: flex;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+        }
+    }
+    &__only-new {
+        color: rgb(34, 204, 34);
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
     }
     &__new {
         width: 50%;
         padding: 4px;
         color: rgb(34, 204, 34);
+        &__title {
+            display: flex;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+        }
     }
     &__button {
         display: flex;
@@ -32,7 +75,7 @@
             &:hover, &:focus, &:active {
                 background-color: $background-color;
                 color: $theme-blue;
-                border: $theme-blue;
+                border: $theme-blue 1px solid;
             }
         }
     }

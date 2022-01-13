@@ -1,7 +1,6 @@
 @import '../../constants/styles/color-constants';
 
 .calendar {
-	background-color: $background-color;
 	&__notification {
 		display: flex;
 		justify-content: center;
@@ -43,16 +42,20 @@
 	}
 	&__panel {
 		width: 70%;
-		height: 600px;
+		height: 80vh;
 		.rbc-btn-group > button {
 			background-color: $theme-blue;
 			border: 1px solid white;
 			color: white;
 			cursor: pointer;
 		}
-		.rbc-toolbar .rbc-toolbar-label {
-			font-weight: 600;
-			color: $theme-blue;
+		.rbc-toolbar {
+			flex-wrap: nowrap;
+			.rbc-toolbar-label {
+				font-weight: 800;
+				color: $theme-blue;
+				font-size: 14px;
+			}
 		}
 		.rbc-label {
 			color: $theme-blue;
@@ -76,7 +79,6 @@
 		&__notification {
 			padding: 8px;
 			height: 40px;
-			
 		}
 		&__header {
 			display: flex;
