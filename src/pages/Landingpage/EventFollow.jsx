@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "antd";
 import classes from "./EventFollow.module.scss";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 function EventFollow(props) {
   return (
     <div className={classes.card}>

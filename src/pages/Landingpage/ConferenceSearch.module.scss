@@ -4,6 +4,23 @@
   display: flex;
 }
 
+.tabHolder {
+  display: flex;
+  justify-content: flex-start;
+  padding: 5% 10% 0% 10%;
+
+  button {
+    background-color: $theme-blue;
+    color: $background-color;
+    border: none;
+    width: 7em;
+
+    &.buttonactive {
+      background-color: $background-color;
+      color: $theme-blue;
+    }
+  }
+}
 .searchWrapper {
   margin: auto;
 
@@ -70,12 +87,12 @@
     font-size: 1vw;
   } */
   .adaptiveFlex {
-    margin-top: 10%;
+    margin-top: 0;
     display: flex;
     flex-direction: column;
   }
   .scroll {
-    height: 62vh;
+    height: 70vh;
     overflow: auto;
   }
   .search {
@@ -83,7 +100,7 @@
     padding: 20px 0;
   }
   .followed {
-    width: 100%;
-    margin: 0 0 0 5px;
+    width: 80%;
+    margin: 20px auto;
   }
 }

@@ -20,12 +20,21 @@ export const subscribeAfterLogin = (userId, token, subscription) => {
     .then((res) => {
       console.log("Response je " + res.status);
       console.log("Id suba je " + res.data.id);
-      localStorage.setItem("subId", res.data.id);
+      // localStorage.setItem("subId", res.data.id);
     })
     .catch((err) => {
       console.log(err);
       console.log(err.message ?? err);
     });
+};
+
+export const clearCacheAtLogout = () => {
+  const createdCaches = ["calendar", "eventovi", "userEvents", "sections"];
+  caches.keys().then((keys) => {
+    for (let name of createdCaches) {
+      caches.delete(name);
+    }
+  });
 };
 
 export const unsubscribeUser = () => {

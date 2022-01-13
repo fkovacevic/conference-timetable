@@ -1,8 +1,8 @@
 import axios from "axios";
-import React, { useCallback, useEffect, useState } from "react";
-import { unsubscribeUserReturnSubscription } from "../common/common";
+import React, { useState } from "react";
 import apiPath from "../constants/api/apiPath";
-
+import { unsubscribeUser, unsubscribeUserReturnSubscription } from "../common/common";
+import { clearCacheAtLogout } from "../common/common";
 // let logoutTimer;
 
 const AuthContext = React.createContext({
@@ -35,7 +35,7 @@ export const AuthContextProvider = (props) => {
 
   const userIsLoggedIN = !!token;
 
-  const logoutHandler = () => {
+  const logoutHandler = async () => {
     var uId = userid;
     var uToken = token;
 
@@ -47,18 +47,21 @@ export const AuthContextProvider = (props) => {
     setUserid(undefined);
     setIsAdministrator(false);
 
-    var subId = localStorage.getItem("subId");
+    clearCacheAtLogout();
+    const {endpoint}= await unsubscribeUserReturnSubscription();
+    console.log("endpoint je " + endpoint);
     axios
       .delete(`${apiPath}/Users/${uId}/Subscriptions`, {
         headers: {
           Authorization: "Bearer " + uToken, //localStorage.getItem("token"),
         },
         data: {
-          id: subId, // This is the body part
+          endpoint: endpoint, // This is the body part
         },
       })
       .then(async (res) => {
         console.log("Uspio si deletat s --> ", res.status);
+        unsubscribeUser();
         // const sub = await unsubscribeUserReturnSubscription();
         // console.log(sub);
         // console.log("endpoint je " + sub.endpoint);

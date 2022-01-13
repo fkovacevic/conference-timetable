@@ -11,40 +11,16 @@ import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import ConferenceSearch from "./pages/Landingpage/ConferenceSearch";
 import AuthContext from "./auth_store/auth-context";
-import { Button } from "antd";
-import axios from "axios";
-import { unsubscribeUserReturnSubscription } from "./common/common";
+import ErrorPage from "./pages/ErrorPage/ErrorPage";
+
 
 const App = () => {
+  console.log("build up234")
   const authCtx = useContext(AuthContext);
-  
-  const unSub = () => {
-    const subId = localStorage.getItem("subId");
-    axios
-      .delete(
-        `http://localhost:5000/api/Users/${authCtx.userid}/Subscriptions`,
-        {
-          headers: {
-            Authorization: "Bearer " + authCtx.token, //localStorage.getItem("token"),
-          },
-          data: {
-            id: subId, // This is the body part
-          },
-        }
-      )
-      .then(async (res) => {
-        const sub = await unsubscribeUserReturnSubscription();
-        console.log(sub);
-        console.log("endpoint je " + sub.endpoint);
-        console.log("Uspio si deletat s --> ", res.status);
-      })
-      .catch((err) => {
-        console.log(err.message ?? err);
-      });
-  };
 
   return (
     <>
+      
       {/* <Button onClick={unSub}>an sab ebbe</Button> */}
       <BrowserRouter>
         {authCtx.isLoggedIn && <NavigationBar></NavigationBar>}
@@ -82,6 +58,9 @@ const App = () => {
           )}
           <Route path="/tryout">
             <Homepage></Homepage>
+          </Route>
+          <Route path="/error">
+            <ErrorPage></ErrorPage>
           </Route>
           {authCtx.isLoggedIn && (
             <Route exact path="/notifications">

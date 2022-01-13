@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Collapse } from 'antd';
 import { BellTwoTone } from '@ant-design/icons'
 
-import NavigationBar from '../../common/NavigationBar/NavigationBar';
 import Notification from './Notification/Notification';
 import './_notifications.scss';
 
