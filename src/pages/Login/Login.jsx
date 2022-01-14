@@ -1,6 +1,6 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 
-import { Form, Input, Button, Checkbox, Alert } from "antd";
+import { Form, Input, Button, Alert } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 
 import classes from "./Login.module.scss";
@@ -10,8 +10,6 @@ import { useHistory } from "react-router-dom";
 import AuthContext from "../../auth_store/auth-context";
 
 import { subscribeUser } from "../../serviceWorkerSubscription";
-import { register } from "../../serviceWorkerRegistration";
-
 import { subscribeAfterLogin } from "../../common/common";
 import apiPath from "../../constants/api/apiPath";
 
@@ -30,29 +28,38 @@ function Login(props) {
         console.log(result.data);
 
         async function registerAndSubscribeUser() {
-          await register();
+          // register();
           return await subscribeUser();
         }
 
-        authCtx.login(result.data.token, result.data.userId, false);
+        authCtx.login(
+          result.data.token,
+          result.data.userId,
+          result.data.isAdmin
+        );
+
+        console.log("User je admin ", result.data.isAdmin);
         history.push("/home");
 
-        console.log("ispis login");
+        console.log("ispis loginn");
 
         var sub = await registerAndSubscribeUser();
+        console.log("Sub je ", sub);
+        console.log("ispis login2");
 
         if (sub) {
+          console.log("subscription received!!!");
+
           sub = JSON.parse(JSON.stringify(sub));
           const { keys, endpoint } = sub;
           console.log(keys, endpoint);
-          // console.log("AWAIT piki je debel sad se subsrakjbam ide config! \n");
-          // console.log(JSON.stringify(sub));
           subscribeAfterLogin(result.data.userId, result.data.token, sub);
         } else {
-          console.log("eto sranje");
+          console.log("subscription object not receiveed :((");
         }
       })
       .catch((err) => {
+        console.log("we in this catch");
         console.log(console.log(err.message ?? err));
         setPassErr(err.message);
         setTimeout(() => {
@@ -67,7 +74,7 @@ function Login(props) {
         <div>
           <h1>Conference Timetable</h1>
           <div className={classes.imgSizer}>
-            <img src="calendar-192.png"></img>
+            <img alt="app logo" src="calendar-192.png"></img>
           </div>
 
           <Form

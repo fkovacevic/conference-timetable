@@ -1,13 +1,14 @@
 import React, { useEffect, useContext, useState } from "react";
 import classes from "./ConferenceSearch.module.scss";
-import { Input } from "antd";
+import { Button, Input } from "antd";
 import ConfrenceCard from "./ConfrenceCard";
 import EventFollow from "./EventFollow";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import AuthContext from "../../auth_store/auth-context";
 import apiPath from "../../constants/api/apiPath";
-
+import { useRef } from "react";
+import PageUnreachable from "../../common/PageUnreachable/PageUnreachable";
 const { Search } = Input;
 
 const getConfrences = () => {
@@ -102,9 +103,59 @@ const getConfrences = () => {
     },
   ];
 };
+
 function ConferenceSearch(props) {
   const history = useHistory();
   const authCtx = useContext(AuthContext);
+
+  const [isFullWidth, setIsFullWidth] = useState(false);
+  const [isErrorPresent, setIsErrorPresent] = useState(false);
+  const isFullWidthRef = useRef(isFullWidth);
+
+  const [myEventsChosen, setMyEventsChosen] = useState(false);
+  const myEventsChosenRef = useRef(myEventsChosen);
+
+  const _setMyEventsChosen = (myEv) => {
+    myEventsChosenRef.current = myEv;
+    setMyEventsChosen(myEv);
+  };
+
+  const _setIsFullWidth = (isFW) => {
+    isFullWidthRef.current = isFW;
+    setIsFullWidth(isFW);
+  };
+
+  const getIsFullWidth = () => {
+    if (window.innerHeight > window.innerWidth) {
+      setIsFullWidth(false);
+    } else {
+      setIsFullWidth(true);
+    }
+  };
+
+  const showMyEvents = () => {
+    if (!myEventsChosenRef.current) {
+      _setMyEventsChosen(true);
+    }
+  };
+
+  const showSearch = () => {
+    if (myEventsChosenRef.current) {
+      _setMyEventsChosen(false);
+    }
+  };
+
+  function applyOrientation() {
+    if (window.innerHeight > window.innerWidth) {
+      if (isFullWidthRef.current) {
+        _setIsFullWidth(false);
+      }
+    } else {
+      if (!isFullWidthRef.current) {
+        _setIsFullWidth(true);
+      }
+    }
+  }
 
   const addToFollowed = (conf) => {
     if (
@@ -181,6 +232,9 @@ function ConferenceSearch(props) {
   const [myEvents, setMyEvents] = useState([]);
 
   useEffect(() => {
+    window.addEventListener("resize", applyOrientation);
+    getIsFullWidth();
+
     axios
       .get(apiPath + "/Events", {
         headers: {
@@ -188,6 +242,7 @@ function ConferenceSearch(props) {
         },
       })
       .then((result) => {
+        setIsErrorPresent(false)
         console.log(result.data);
         setAllConferences((konf) => {
           return [...getConfrences(), ...result.data];
@@ -197,13 +252,14 @@ function ConferenceSearch(props) {
         });
       })
       .catch((err) => {
+        console.log(err," \n ",err.message)
         if (err.response && err.response.status === 401) {
           //localStorage.clear();
           authCtx.logout();
           history.push("/login");
-        }
-        else{
-          console.log(err.message ?? err)
+        } else {
+          setIsErrorPresent(true)
+          console.log(err.message ?? err);
         }
       });
 
@@ -229,6 +285,10 @@ function ConferenceSearch(props) {
         console.log(err.message ?? err);
         return;
       });
+
+    return () => {
+      window.removeEventListener("resize", applyOrientation);
+    };
   }, []);
 
   const onSearch = (eve) => {
@@ -240,56 +300,83 @@ function ConferenceSearch(props) {
   };
 
   return (
-    <div className={classes.adaptiveFlex}>
-      <div className={classes.search}>
-        <div className={`${classes.searchWrapper} ${classes.flex}`}>
-          <Search
-            placeholder="Search for a confrence"
-            allowClear
-            enterButton="Search"
-            size="large"
-            onSearch={onSearch}
-          />
-        </div>
-        <div className={classes.scroll}>
-          <div className={classes.searchWrapper}>
-            {filteredConferences.map((conf) => {
-              return (
-                <ConfrenceCard
-                  key={conf.id}
-                  addToFollowed={addToFollowed}
-                  confObj={conf}
-                  {...conf}
-                ></ConfrenceCard>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      <div className={classes.followed}>
-        <h2>My Events</h2>
-        <div className={classes.scroll}>
-          {myEvents.length > 0 ? (
-            myEvents.map((conf) => {
-              return (
-                <EventFollow
-                  key={conf.id}
-                  removeFromFollowed={removeFromFollowed}
-                  confObj={conf}
-                  {...conf}
-                ></EventFollow>
-              );
-            })
-          ) : (
-            <p className={classes.noneFollowed}>
-              You are not subscribed to any events! Add events you want to
-              follow.
-            </p>
+    <>
+      {isErrorPresent ? (
+        <PageUnreachable></PageUnreachable>
+      ) : (
+        <>
+          {!isFullWidth && (
+            <div className={classes.tabHolder}>
+              <Button
+                className={myEventsChosen ? classes.buttonactive : ""}
+                onClick={showMyEvents}
+              >
+                My Events
+              </Button>
+              <Button
+                className={!myEventsChosen ? classes.buttonactive : ""}
+                onClick={showSearch}
+              >
+                Search
+              </Button>
+            </div>
           )}
-        </div>
-      </div>
-    </div>
+          <div className={classes.adaptiveFlex}>
+            {(!myEventsChosen || isFullWidth) && (
+              <div className={classes.search}>
+                <div className={`${classes.searchWrapper} ${classes.flex}`}>
+                  <Search
+                    placeholder="Search for a confrence"
+                    allowClear
+                    enterButton="Search"
+                    size="large"
+                    onSearch={onSearch}
+                  />
+                </div>
+                <div className={classes.scroll}>
+                  <div className={classes.searchWrapper}>
+                    {filteredConferences.map((conf) => {
+                      return (
+                        <ConfrenceCard
+                          key={conf.id}
+                          addToFollowed={addToFollowed}
+                          confObj={conf}
+                          {...conf}
+                        ></ConfrenceCard>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+            {(myEventsChosen || isFullWidth) && (
+              <div className={classes.followed}>
+                <h2>My Events</h2>
+                <div className={classes.scroll}>
+                  {myEvents.length > 0 ? (
+                    myEvents.map((conf) => {
+                      return (
+                        <EventFollow
+                          key={conf.id}
+                          removeFromFollowed={removeFromFollowed}
+                          confObj={conf}
+                          {...conf}
+                        ></EventFollow>
+                      );
+                    })
+                  ) : (
+                    <p className={classes.noneFollowed}>
+                      You are not subscribed to any events! Add events you want
+                      to follow.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </>
   );
 }
 

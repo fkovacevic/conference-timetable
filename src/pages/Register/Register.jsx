@@ -29,18 +29,18 @@ function Register(props) {
     } else {
       setPassErr(false);
       axios
-        .post(apiPath+"/Users", {
+        .post(apiPath + "/Users", {
           ...values,
         })
         .then(async (result) => {
           console.log(result.data);
 
           async function registerAndSubscribeUser() {
-            await register();
+            // register();
             return await subscribeUser();
           }
 
-          authCtx.login(result.data.token, result.data.id,result.data.isAdmin);
+          authCtx.login(result.data.token, result.data.id, result.data.isAdmin);
           history.push("/home");
 
           console.log("ispis registracija");
@@ -48,12 +48,14 @@ function Register(props) {
           var sub = await registerAndSubscribeUser();
 
           if (sub) {
+            console.log("subscription received!!!");
+
             sub = JSON.parse(JSON.stringify(sub));
             const { keys, endpoint } = sub;
             console.log(keys, endpoint);
             subscribeAfterLogin(result.data.id, result.data.token, sub);
           } else {
-            console.log("eto sranje");
+            console.log("subscription NOT received!!!");
           }
         })
         .catch((err) => {
@@ -68,7 +70,7 @@ function Register(props) {
         <div>
           <h1>Conference Timetable</h1>
           <div className={classes.imgSizer}>
-            <img src="calendar-192.png"></img>
+            <img alt="logo" src="calendar-192.png"></img>
           </div>
           <Form
             name="normal_login"

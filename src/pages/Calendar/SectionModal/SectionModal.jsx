@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Modal, Spin } from 'antd';
 
 import PresentationsList from './PresentationsList/PresentationsList';
 import { getSectionPresentations } from '../../../services/SectionService';
+import PageUnreachable from '../../../common/PageUnreachable/PageUnreachable';
 
 import './_section-modal.scss';
+import AuthContext from '../../../auth_store/auth-context';
 
 // const fetchedSectionMock = {
 //     "id": 1,
@@ -93,6 +95,9 @@ const SectionModal = ({ visible, setVisibility, sectionInfo }) => {
 
     const [presentations, setPresentations] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
+    const [isErrorPresent, setIsErrorPresent] = useState(false);
+    const authCtx = useContext(AuthContext);
+
 
     const onClose = () => setVisibility(false);
 
@@ -103,7 +108,19 @@ const SectionModal = ({ visible, setVisibility, sectionInfo }) => {
       }
 		if (visible){
 			setIsLoading(true);
-			fetchData().then(() => setIsLoading(false));
+			fetchData().then(() => {
+                setIsLoading(false)
+                setIsErrorPresent(false)
+            })
+            .catch((err)=>{
+                console.log(err,"\n",err.message)
+                if(err.response.status===401){
+                    authCtx.logout()
+                }else{
+                    setIsErrorPresent(true)
+                    setIsLoading(false)
+                }
+            });;
 		}
       }, [visible, id]);
 
@@ -114,7 +131,7 @@ const SectionModal = ({ visible, setVisibility, sectionInfo }) => {
             onCancel={onClose}
             footer={null}
         >
-		{isLoading ?
+		{isErrorPresent ? <PageUnreachable></PageUnreachable> : isLoading ?
 		<div className='section-modal--loading'>
 			<Spin size='large'></Spin>
 		</div> :
