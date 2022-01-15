@@ -91,6 +91,22 @@ const Notifications = () => {
 	const { userid } = useContext(AuthContext);
 	const [notifications, setNotifications] = useState([]);
 
+
+	useEffect(() => {
+		const swListener = new BroadcastChannel('swListener');
+		swListener.onmessage = handleSwMessage;
+		async function fetchData() {
+			return await getUserNotifications(userid);
+		}
+		fetchData()
+			.then((notifications) => setNotifications(notifications))
+			.catch((err) => console.error(err))
+
+		return () => {
+			swListener.removeEventListener('swListener', handleSwMessage);
+		};
+	}, []);
+
 	function handleSwMessage() {
 		console.log('Received message!');
 	}
@@ -110,21 +126,6 @@ const Notifications = () => {
 			</Panel>
 		);
 	}
-
-	useEffect(() => {
-		const swListener = new BroadcastChannel('swListener');
-		swListener.onmessage = handleSwMessage;
-		async function fetchData() {
-			return await getUserNotifications(userid);
-		}
-		fetchData()
-			.then((notifications) => setNotifications(notifications))
-			.catch((err) => console.error(err))
-
-		return () => {
-			swListener.removeEventListener('swListener', handleSwMessage);
-		};
-	}, []);
 
 	return <>
 		<div className="notifications">
