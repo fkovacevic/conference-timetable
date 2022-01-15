@@ -15,6 +15,7 @@ import {
   getEventLocations,
   updateEvent,
   updateEventLocation,
+  deleteEventLocation,
 } from '../../../services/EventService';
 
 import { Collapse } from 'antd';
@@ -168,15 +169,19 @@ const AdminConferencePage = () => {
   }
 
    
-  const onSubmitLocations = ({locations}) => {
-    locations.forEach(location => {location && 
-      locationsOptions.some(l => l.id === location.id) ?
+  const onSubmitLocations = async ({locations}) => {
+    const locationIds = locations.map(location => location.id);
+    const locationsToRemove = locationsOptions.filter(l => !locationIds.includes(l.id));
+    Promise.all([...locations.map(location => {
+      return location && location.id ?
       updateEventLocation(location.id, {eventId, name: location.name})
       : addEventLocation({eventId, name: location.name})
-    })
-    getEventLocations(eventId).then((locations) => {
-      setLocationsOptions(locations)
-    })
+    }), ...locationsToRemove.map((location) => deleteEventLocation(location.id))]
+    ).then(() =>
+      getEventLocations(eventId).then((locations) => {
+        setLocationsOptions(locations)
+        setLocationsForm(locations)
+    }))
   }
   
   const onSubmitSections = ({sections}) => {
@@ -260,7 +265,7 @@ const AdminConferencePage = () => {
         {eventId && (
           <>
           <Panel header="Locations" key="2">
-            <Form form={locationsForm} {...formItemLayoutWithOutLabel} initialValues={{ locations:[''] }} onFinish={onSubmitLocations} >
+            <Form form={locationsForm} {...formItemLayoutWithOutLabel} initialValues={{ locations:[{ id: null, name: '' }] }} onFinish={onSubmitLocations} >
               <Form.List label="Event locations" name="locations">
                 {(locations, { add, remove }, { errors }) => (
                 <>

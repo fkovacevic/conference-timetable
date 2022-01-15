@@ -80,34 +80,34 @@ export const getEventLocations = async (id) => {
   return data;
 };
 
-export const addEventLocation = async ({eventId, name}) => {
+export const addEventLocation = ({eventId, name}) => {
   const token = localStorage.getItem('token');
   const config = {
     headers: {
       Authorization: `Bearer ${token}`
     }
   };
-  const { data } = await axios.post(
-    `${apiPath}/locations`,
-    { eventId, name },
-    config
-  );
-  return data;
+  return axios.post(`${apiPath}/locations`, { eventId, name }, config);
 };
 
-export const updateEventLocation = async (id, {eventId, name}) => {
+export const updateEventLocation = (id, {eventId, name}) => {
   const token = localStorage.getItem('token');
   const config = {
     headers: {
       Authorization: `Bearer ${token}`
     }
   };
-  const { data } = await axios.put(
-    `${apiPath}/locations/${id}`,
-    { eventId, name },
-    config
-  );
-  return data;
+  return axios.put(`${apiPath}/locations/${id}`, { eventId, name }, config);
+};
+
+export const deleteEventLocation = (id) => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  return axios.delete(`${apiPath}/locations/${id}`, config);
 };
 
 
