@@ -1,40 +1,52 @@
 import React from 'react';
-
 import moment from 'moment';
-
 import { Collapse, Row, Col } from 'antd';
+import { CloudDownloadOutlined } from '@ant-design/icons'
 
+
+import apiPath from '../../../../constants/api/apiPath';
+import Author from './Author';
 import './_presentations-list.scss';
 
 
 const { Panel } = Collapse;
 
 
-const presentationsMapper = function(presentation) {
+
+function presentationsMapper(presentation) {
     const presentationStart = this.presentationTime.format('LT');
-    const presentationTitle = `${presentation.title} - ${presentationStart}`;
+    const durationText = ` [${presentation.durationMinutes} minutes]`;
+    const presentationTitle = `${presentation.title} - ${presentationStart} ${durationText}`;
     this.presentationTime.add(presentation.durationMinutes, 'minutes');
-    const durationText = `• Duration: ${presentation.durationMinutes} minutes`;
 
     return (
         <Panel header={presentationTitle} key={presentation.id}>
-            <Row>
-                <Col className="presentations-list__left-element" sm={12}>
-                    <Row >
-                        <Col sm={12}>• Authors</Col>
-                        <Col sm={12}>
-                            {presentation.authors.map((author) =><Row>{author}</Row>)}
-                        </Col>
-                    </Row>
-                    <Row className="presentations-list__duration">
-                        {durationText}
-                    </Row>
+            <Row >
+                <Col sm={6}>
+                    <b>• Authors:</b>
                 </Col>
-                <Col className="presentations-list__description" sm={12}>
-                    <Row className="presentations-list__description__title">Description:</Row>
-                    <Row className="presentations-list__description__text">{presentation.description}</Row>
+                <Col sm={18}>
+                    {presentation.authors.map((author, index) => (
+                        <Row>
+                            <Author authorName={author} hasPicture={index === 0 && presentation.hasPhoto} presentationId={presentation.id}/>
+                        </Row>)
+                    )}
                 </Col>
             </Row>
+            <Row className="presentations-list__description" sm={12}>
+                    <Col sm={6}>
+                        <b>• Description:</b>
+                    </Col>
+                    <Col sm={18}>{presentation.description}</Col>
+            </Row>
+            {presentation.attachmentFile && (
+                <Row className="presentations-list__attachment">
+                        <div className="presentations-list__attachment__card">
+                            <a href={`${apiPath}/presentations/${presentation.id}/attachments`} download>Download {presentation.attachmentFile}</a>
+                            <CloudDownloadOutlined className='presentations-list__attachment__card__icon'/>{presentation.attachmentFile}
+                        </div>
+                </Row>
+            )}
          </Panel>
     );
 }

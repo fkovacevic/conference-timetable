@@ -12,6 +12,7 @@ import { clientsClaim } from 'workbox-core';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { CacheFirst, NetworkFirst } from 'workbox-strategies';
+import NotificationTypes from '../src/constants/enums/NotificationTypes';
 
 clientsClaim();
 
@@ -91,6 +92,15 @@ registerRoute(
 	})
 );
 
+// cache everything starting with /api/users/ and ending with /subscriptions
+// use network first since it might change often
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/users/') && url.pathname.endsWith('/subscriptions'),
+	new NetworkFirst({
+		cacheName: 'subscriptions',
+	})
+);
+
 
 // This allows the web app to trigger skipWaiting via
 // registration.waiting.postMessage({type: 'SKIP_WAITING'})
@@ -102,8 +112,14 @@ self.addEventListener('message', (event) => {
 
 // on receiving of push message, raise notification
 self.addEventListener('push', (event) => {
-	var options = {
-		body: event.data.text(),
+
+	let data = {};
+	if (event.data) {
+		data = event.data.json();
+	}
+	const body = `${data.eventTitle} has ${NotificationTypes[data.type]}`;
+	const options = {
+		body,
 		icon: '/calendar-64.png',
 		vibrate: [100, 50, 100],
 		actions: [
@@ -111,7 +127,7 @@ self.addEventListener('push', (event) => {
 		]
 	  };
 	  event.waitUntil(
-		self.registration.showNotification('Notification!', options)
+		self.registration.showNotification('New Schedule Changes!', options)
 	  );
 	  const swListener = new BroadcastChannel('swListener');
 	  swListener.postMessage(event.data.text());
@@ -119,7 +135,7 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
 	if (event.action === 'check') {
-		self.clients.openWindow('/');
+		self.clients.openWindow('/notifications');
 	}
 });
 
