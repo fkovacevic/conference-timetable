@@ -18,6 +18,12 @@
             overflow: auto;
             justify-content: center;
             width: 80%;
+            &__loading {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 50px;
+            }
         }
         &__single-notification {
             margin-top: 12px;
