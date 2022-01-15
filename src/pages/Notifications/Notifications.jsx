@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import moment from 'moment';
 import { Collapse } from 'antd';
 import { BellTwoTone, MessageFilled } from '@ant-design/icons'
 
+import AuthContext from '../../auth_store/auth-context';
+import { getUserNotifications } from '../../services/NotificationService';
 import Notification from './Notification/Notification';
 import NotificationTypes from '../../constants/enums/NotificationTypes';
 import './_notifications.scss';
@@ -86,9 +88,29 @@ const fakeNotifications = [
 
 const Notifications = () => {
 
+	const { userid } = useContext(AuthContext);
+	const [notifications, setNotifications] = useState([]);
+
+
+	useEffect(() => {
+		const swListener = new BroadcastChannel('swListener');
+		swListener.onmessage = handleSwMessage;
+		async function fetchData() {
+			return await getUserNotifications(userid);
+		}
+		fetchData()
+			.then((notifications) => setNotifications(notifications))
+			.catch((err) => console.error(err))
+
+		return () => {
+			swListener.removeEventListener('swListener', handleSwMessage);
+		};
+	}, []);
+
 	function handleSwMessage() {
 		console.log('Received message!');
 	}
+
 
 	function notificationsMapper (notification, index) {
 		const { eventTitle, type, createdAt, data, eventId } = notification;
@@ -105,24 +127,15 @@ const Notifications = () => {
 		);
 	}
 
-	useEffect(() => {
-		const swListener = new BroadcastChannel('swListener');
-		swListener.onmessage = handleSwMessage;
-
-		return () => {
-			swListener.removeEventListener('swListener', handleSwMessage);
-		};
-	}, []);
-
 	return <>
 		<div className="notifications">
 			<div className="notifications__header"><BellTwoTone twoToneColor="#ff9100" color='blue'/></div>
 			<div className="notifications__box">
 				<div className="notifications__box__scroll">
 					<div className="notifications__box__single-notification">
-						{ fakeNotifications && fakeNotifications.length > 0 ?
+						{ notifications && notifications.length > 0 ?
 							<Collapse  expandIconPosition='right'>
-								{fakeNotifications.map(notificationsMapper)}
+								{notifications?.map(notificationsMapper)}
 							</Collapse> :
 							<div className="notifications__no-notifications">
 								<div> No notifications to show!</div>
