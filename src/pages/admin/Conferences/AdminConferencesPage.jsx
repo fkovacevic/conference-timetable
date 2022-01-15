@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 import './admin-conferences-page.scss';
+import { CSVLink } from "react-csv";
 
-import { getConferences, deleteConference } from '../../../services/EventService';
+import { getConferences, deleteConference, importData, exportData } from '../../../services/EventService';
 
-import { Table, Tooltip, Button, Modal, Input, Form } from 'antd';
-import { EditFilled, NotificationFilled, DeleteFilled } from '@ant-design/icons';
+import { Table, Tooltip, Button, Modal, Input, Form, Upload } from 'antd';
+import { EditFilled, NotificationFilled, DeleteFilled, UploadOutlined, ExportOutlined } from '@ant-design/icons';
+
 const { TextArea } = Input;
 
 const displayFormat = 'DD.MM.YYYY. HH:mm';
@@ -18,6 +20,16 @@ const Conferences = () => {
   const [conferences, setConferences] = useState([]);
   const [fetchingConferences, setFetchingConferences] = useState(false);
   const [isNotificaionModalVisible, setIsNotificationModalVisible] = useState(false);
+  const [eventsData, setEventsData] = useState([]);
+  const [locationsData, setLocationsData] = useState([]);
+  const [sectionsData, setSectionsData] = useState([]);
+  const [presentationsData, setPresentationsData] = useState([]);
+
+  const eventsCsvLinkEl = useRef();
+  const locationsCsvLinkEl = useRef();
+  const sectionsCsvLinkEl = useRef();
+  const presentationsCsvLinkEl = useRef();
+
 
   const openNotificationModal = () => {
     setIsNotificationModalVisible(true);
@@ -42,6 +54,20 @@ const Conferences = () => {
   const onCreateNewConference = () => {
     let newConferenceRoute = `conferences/new`; 
     history.push(newConferenceRoute);
+  }
+
+  const onImportData = () => {
+    // TODO import
+  }
+
+  const onExportData = () => {
+    exportData()
+    .then((data) => {
+      setEventsData(data.events, setTimeout(() => eventsCsvLinkEl.current.link.click()))
+      setLocationsData(data.locations, setTimeout(() => locationsCsvLinkEl.current.link.click()))
+      setSectionsData(data.sections, setTimeout(() => sectionsCsvLinkEl.current.link.click()))
+      setPresentationsData(data.presentations, setTimeout(() => presentationsCsvLinkEl.current.link.click()))
+    })
   }
 
   const fetchConferences = () => {
@@ -112,7 +138,14 @@ const Conferences = () => {
 
 return (
   <div>
-    <Button type="primary" className='new-conference-btn' onClick={onCreateNewConference}>Add new conference</Button>
+    <Button type="primary" className='btn' onClick={onCreateNewConference}>Add new conference</Button>
+    <Upload name="import" action="/upload.do" className='btn'><Button icon={<UploadOutlined />}>Import conferences data</Button></Upload>
+    <Button icon={<ExportOutlined />} type="primary" className='btn' onClick={onExportData}>Export conferences data</Button>
+    <CSVLink filename="events.csv" data={eventsData} ref={eventsCsvLinkEl} />
+    <CSVLink filename="locations.csv" data={locationsData} ref={locationsCsvLinkEl} />
+    <CSVLink filename="sections.csv" data={sectionsData} ref={sectionsCsvLinkEl} />
+    <CSVLink filename="presentations.csv" data={presentationsData} ref={presentationsCsvLinkEl} />
+
     <div className='table-container'>
       <Table columns={columns} dataSource={conferences} loading={fetchingConferences} />
     </div>   

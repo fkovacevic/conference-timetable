@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './admin-conference-page.scss';
 import 'antd/dist/antd.css';
 import moment from 'moment';
 import { BlockPicker } from 'react-color';
+import { useParams, useHistory } from 'react-router-dom';
 
-import { createEvent, addEventLocation, addEventChairman, addEventSection, addSectionPresentation } from '../../../services/EventService';
+import { 
+  createEvent,
+  addEventLocation,
+  addEventSection,
+  addSectionPresentation,
+  getEvent,
+  getEventSections,
+  getEventLocations,
+  updateEvent,
+  updateEventLocation,
+} from '../../../services/EventService';
 
 import { Collapse } from 'antd';
 import { Form, Input, DatePicker, Button, Select, InputNumber, Upload } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
-import { hexToNumber } from '../../../common/common';
+import { hexToNumber, numberToHexColor } from '../../../common/common';
+import { getSectionPresentations } from '../../../services/SectionService';
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -45,35 +57,104 @@ const dateRangeConfig = {
   ]
 };
 
+const emptySectionForm = {
+  title: '',
+  location: null,
+  sectionDateRange: null,
+  chairmen: [''],
+  backgroundColor: {}
+}
+
+const emptyPresentationForm = {
+  section: null,
+  title: '',
+  authors: [''],
+  description: '',
+  durationMinutes: null,
+}
+
 const AdminConferencePage = () => {
-  const [eventId, setEventId] = useState(null)
+  const { conferenceId: eventId } = useParams();
+  const history = useHistory();
+  const actionText = eventId ? 'Update' : 'Submit'
+  const editMode = Boolean(eventId);
+
   const [eventForm] = Form.useForm();
   const [locationsForm] = Form.useForm();
-  const [chairmenForm] = Form.useForm();
   const [presentationsForm] = Form.useForm();
   const [sectionsForm] = Form.useForm();
 
-  const sectionsOptions = [{ id: 0, title: 'test1' }, { id: 1, title: 'test2' }];
-  const locationsOptions = [{id: 0, name: 'test1'}, {id: 1, name: 'test2'}];
-  const chairmenOptions = ['test1', 'test2'];
+  const [locationsOptions, setLocationsOptions] = useState([]);
+  const [sectionsOptions, setSectionsOptions] = useState([]);
 
-  const emptySectionForm = {
-    title: '',
-    location: null,
-    sectionDateRange: null,
-    chairmen: [],
-    backgroundColor: {}
+  useEffect(() => {
+    if (eventId) {
+      getEvent(eventId).then((event) => setEventForm(event));
+      getEventLocations(eventId).then((locations) => {
+        setLocationsForm(locations);
+        setLocationsOptions(locations)
+      })
+      getEventSections(eventId).then((sections) => {
+        setSectionsForm(sections)
+        setSectionsOptions(sections);
+        sections.forEach((section) => {
+          getSectionPresentations(section.id).then((presentations) => {
+            updatePresentationsForm(section.id, presentations)
+          })
+        })
+      })
+      
+
+    }
+  }, [])
+
+  const setEventForm = (event) => {
+    eventForm.setFieldsValue({
+      title: event.title,
+      description: event.description,
+      eventDateRange: [moment(event.startAt).utc(), moment(event.endAt).utc()]
+    })
+  }
+  
+  const setSectionsForm = (sections) => {
+    if (sections.length > 0) {
+      sectionsForm.setFieldsValue({
+        sections: sections.map((section) => {
+          return {
+            title: section.title,
+            location: section.locationId,
+            chairmen: section.chairs,
+            sectionDateRange: [moment(section.startAt).utc(), moment(section.endAt).utc()],
+            backgroundColor: numberToHexColor(section.backgroundColor)
+          }
+        })
+      })
+    }
   }
 
-  const emptyPresentationForm = {
-    section: null,
-    title: '',
-    authors: [''],
-    description: '',
-    durationMinutes: null,
+  const setLocationsForm = (locations) => {
+    if (locations.length) {
+      locationsForm.setFieldsValue({ locations })
+    }
   }
 
-  const onCreateEvent = (values) => {
+  const updatePresentationsForm = (sectionId, presentations) => {
+    const { presentations: currentPresentations } = presentationsForm.getFieldsValue();
+    if (presentations.length > 0) {
+      presentationsForm.setFieldsValue({presentations: [...(currentPresentations || []), ...presentations.map(presentation => {
+        return {
+          section: sectionId,
+          title: presentation.title,
+          authors: presentation.authors,
+          description: presentation.description,
+          durationMinutes: presentation.durationMinutes,
+          position: 1
+        }
+      })]})
+    }
+  }
+  
+  const onSubmitEvent = (values) => {
     const requestData = {
       title: values.title,
       description: values.description,
@@ -81,16 +162,21 @@ const AdminConferencePage = () => {
       endAt: moment(values.eventDateRange[1]).format(dateTimeFormat)
     };
 
-    createEvent(requestData).then(response => { setEventId(response.id) })
+    editMode ? 
+    updateEvent(eventId, requestData)
+    : createEvent(requestData).then(({id}) => { history.push(`/conferences/${id}`); window.location.reload() })
   }
 
    
   const onSubmitLocations = ({locations}) => {
-    locations.forEach(location => {location && addEventLocation({eventId, name: location})})
-  }
-
-  const onSubmitChairmen = ({chairmen}) => {
-    chairmen.forEach(chairman => {chairman && addEventChairman({eventId, name: chairman})})
+    locations.forEach(location => {location && 
+      locationsOptions.some(l => l.id === location.id) ?
+      updateEventLocation(location.id, {eventId, name: location.name})
+      : addEventLocation({eventId, name: location.name})
+    })
+    getEventLocations(eventId).then((locations) => {
+      setLocationsOptions(locations)
+    })
   }
   
   const onSubmitSections = ({sections}) => {
@@ -112,18 +198,17 @@ const AdminConferencePage = () => {
 
   const onSubmitPresentations = ({presentations}) => {
     presentations.forEach(presentation => {
-      const requestData = {
-        sectionId: presentation.section,
-        title: presentation.title,
-        authors: presentation.authors,
-        description: presentation.description,
-        position: 0,
-        durationMinutes: presentation.durationMinutes
-      }
-
-      presentation && addSectionPresentation(requestData);
+        const requestData = {
+          sectionId: presentation.section,
+          title: presentation.title,
+          authors: presentation.authors,
+          description: presentation.description,
+          position: 1,
+          durationMinutes: presentation.durationMinutes
+        }
+  
+        presentation && addSectionPresentation(requestData);
     })
-
   }
 
   const uploadAttachment = (e) => {
@@ -146,7 +231,7 @@ const AdminConferencePage = () => {
     <div>
       <Collapse defaultActiveKey={['1']}>
         <Panel header="Event" key="1">
-          <Form form={eventForm}  onFinish={onCreateEvent}>
+          <Form form={eventForm}  onFinish={onSubmitEvent}>
             <Form.Item 
               label="Event name"
               name="title"
@@ -168,7 +253,7 @@ const AdminConferencePage = () => {
             >
               <RangePicker showTime format="DD-MM-YYYY HH:mm" />
             </Form.Item>
-            <Button htmlType="submit">Create event</Button>
+            <Button type="primary" htmlType="submit">{actionText} event</Button>
           </Form>
         </Panel>
 
@@ -187,7 +272,6 @@ const AdminConferencePage = () => {
                       key={location.key}
                     >
                       <Form.Item
-                        {...location}
                         validateTrigger={['onChange', 'onBlur']}
                         rules={[
                           {
@@ -197,8 +281,9 @@ const AdminConferencePage = () => {
                           },
                         ]}
                         noStyle
+                        name={[index, "name"]}
                       >
-                        <Input placeholder="Location name" style={{ width: '60%' }} />
+                        <Input value={location.name} placeholder="Location name" style={{ width: '60%' }} />
                       </Form.Item>
                       {locations.length > 1 ? (
                         <MinusCircleOutlined
@@ -224,78 +309,27 @@ const AdminConferencePage = () => {
               </Form.List>
               <Form.Item>
                 <Button type="primary" htmlType="submit">
-                  Submit locations
+                  {actionText} locations
                 </Button>
               </Form.Item>
             </Form>
           </Panel>
 
-
-          <Panel header="Chairmen" key="3">
-            <Form form={chairmenForm} {...formItemLayoutWithOutLabel} initialValues={{chairmen: ['']}} onFinish={onSubmitChairmen} >
-              <Form.List label="Chairmen" name="chairmen">
-                {(chairmen, { add, remove }, { errors }) => (
-                <>
-                  {chairmen.map((chairman, index) => (
-                    <Form.Item
-                      {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                      label={index === 0 ? 'Chairmen' : ''}
-                      required={false}
-                      key={chairman.key}
-                    >
-                      <Form.Item
-                        {...chairman}
-                        validateTrigger={['onChange', 'onBlur']}
-                        rules={[
-                          {
-                            required: true,
-                            whitespace: true,
-                            message: "Chairman's name is required",
-                          },
-                        ]}
-                        noStyle
-                      >
-                        <Input placeholder="Chairman" style={{ width: '60%' }} />
-                      </Form.Item>
-                      {chairmen.length > 1 ? (
-                        <MinusCircleOutlined
-                          className="dynamic-delete-button"
-                          onClick={() => remove(chairman.name)}
-                        />
-                      ) : null}
-                    </Form.Item>
-                  ))}
-                  <Form.Item>
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      style={{ width: '60%' }}
-                      icon={<PlusOutlined />}
-                    >
-                      Add chairman
-                    </Button>
-                    <Form.ErrorList errors={errors} />
-                  </Form.Item>
-                </>
-              )}
-              </Form.List>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Submit chairmen
-                </Button>
-              </Form.Item>
-            </Form>
-          </Panel>
-
-          <Panel header="Sections" key="5" {...formItemLayoutWithOutLabel} >
+          <Panel header="Sections" key="3" {...formItemLayoutWithOutLabel} >
             <Form form={sectionsForm} initialValues={{sections: [emptySectionForm]}} onFinish={onSubmitSections}>
               <Form.List label="Sections" name="sections">
                 {(sections, { add, remove }, { errors }) => (
                   <>
                     {sections.map((section, index) => (
                       <>
+                        {sections.length > 1 ? (
+                          <MinusCircleOutlined
+                            className="dynamic-delete-button"
+                            onClick={() => remove(section.name)}
+                          />
+                        ) : null}
                         <Form.Item
-                          {...formItemLayoutWithOutLabel}
+                          {...formItemLayout}
                           label={`${index + 1}. Section`}
                           required={false}
                           key={section.key}
@@ -328,41 +362,72 @@ const AdminConferencePage = () => {
                           >
                             <RangePicker showTime format="DD-MM-YYYY HH:mm" />
                           </Form.Item>
-                          <Form.Item
-                            label="Chairmen"
-                            name={[index, "chairmen"]}
-                            rules={[{ required: true, message: "Chairmen are required" }]}
+                          <Form.List label="Chairmen"  name={[index, "chairmen"]}>
+                            {(chairmen, { add, remove }, { errors }) => (
+                              <>
+                                {chairmen.map((chairman, index) => (
+                                  <>
+                                    <Form.Item
+                                      {...formItemLayoutWithOutLabel}
+                                      label={index === 0 ? 'Chairmen' : ''}
+                                      required={true}
+                                      key={chairman.key}
+                                    >
+                                      <Form.Item
+                                        {...chairman}
+                                        validateTrigger={['onChange', 'onBlur']}
+                                        rules={[
+                                          {
+                                            required: true,
+                                            whitespace: true,
+                                            message: "Chairman's name is required",
+                                          },
+                                        ]}
+                                        noStyle
+                                      >
+                                        <Input placeholder="Chairman" style={{ width: '60%' }} />
+                                      </Form.Item>
+                                      {chairmen.length > 1 ? (
+                                        <MinusCircleOutlined
+                                          className="dynamic-delete-button"
+                                          onClick={() => remove(chairman.name)}
+                                        />
+                                      ) : null}
+                                    </Form.Item>
+                                  </>
+                                ))}
+                                <Form.Item>
+                                  <Button
+                                    type="dashed"
+                                    onClick={() => add()}
+                                    style={{ width: '60%' }}
+                                    icon={<PlusOutlined />}
+                                  >
+                                    Add chairman
+                                  </Button>
+                                  <Form.ErrorList errors={errors} />
+                                </Form.Item>
+                              </>
+                            )}
+                          </Form.List>
+                          <Form.Item 
+                            label="Background color" 
+                            name={[index, "backgroundColor"]}
+                            rules={[{ required: true }]}
                           >
-                            <Select mode="multiple">
-                              {chairmenOptions.map(
-                                chairman =>
-                                  chairman && (
-                                    <Option value={chairman}>{chairman}</Option>
-                                  )
-                              )}
-                            </Select>
-                          </Form.Item>
-                          <Form.Item label="Background color" name={[index, "backgroundColor"]}>
                             <BlockPicker
                               value={sectionsForm.getFieldValue().sections[index]?.backgroundColor}
                               color={sectionsForm.getFieldValue().sections[index]?.backgroundColor}
                               triangle="hide"
                               onChangeComplete={(color) => {
-                                console.log(color)
                                 const fields = sectionsForm.getFieldValue();
-                                const {sections} = fields;
+                                const { sections } = fields;
                                 Object.assign(sections[index], {...sections[index], backgroundColor: color.hex})
                                 sectionsForm.setFieldsValue({sections})
                               }}
                           />
                           </Form.Item>
                         </Form.Item>
-                        {sections.length > 1 ? (
-                          <MinusCircleOutlined
-                            className="dynamic-delete-button"
-                            onClick={() => remove(section.name)}
-                          />
-                        ) : null}
                       </>
                     ))}
                     <Form.Item>
@@ -379,8 +444,8 @@ const AdminConferencePage = () => {
                   </>
                 )}
               </Form.List>
-              <Button type="button"  htmlType="submit">
-                Add event section
+              <Button type="primary" htmlType="submit">
+                {actionText} sections
               </Button>
             </Form>
           </Panel>
@@ -427,9 +492,9 @@ const AdminConferencePage = () => {
                                 {authors.map((author, index) => (
                                   <>
                                     <Form.Item
-                                      {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+                                      {...formItemLayoutWithOutLabel}
                                       label={index === 0 ? 'Authors' : ''}
-                                      required={false}
+                                      required={true}
                                       key={author.key}
                                     >
                                       <Form.Item
@@ -531,7 +596,7 @@ const AdminConferencePage = () => {
               </Form.List>
               <Form.Item>
                 <Button type="primary" htmlType="submit">
-                  Submit presentations
+                  {actionText} presentations
                 </Button>
               </Form.Item>
             </Form>
