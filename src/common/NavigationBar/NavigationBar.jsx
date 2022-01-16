@@ -11,51 +11,52 @@ import {
 
 import "./navigation-bar.scss";
 import AuthContext from "../../auth_store/auth-context";
+import { getUserNotifications } from '../../services/NotificationService';
 
-const fakeNotifications = [
-	{
-		eventId: 1,
-		eventName: "Event o životinjama",
-		note: "ponesite maske",
-		eventChanges: {
-			oldStart: "2021-11-18T18:59:06.311058+00:00",
-			newStart: "2021-11-18T19:59:06.311058+00:00",
-			oldSections: [
-				{
-					title: "sekcija o sisavcima",
-					startAt: "2022-01-8T16:00:00.311058+00:00",
-				},
-			],
-			newSections: [
-				{
-					title: "sekcija o sisavcima",
-					startAt: "2022-01-8T17:00:00.311058+00:00",
-				},
-			],
-		},
-	},
-	{
-		eventId: 2,
-		eventName: "Event o ženama",
-		note: "ponesite maske opet",
-		eventChanges: {
-			oldStart: "2021-11-18T18:59:06.311058+00:00",
-			newStart: "2021-11-18T19:59:06.311058+00:00",
-			oldSections: [
-				{
-					title: "sekcija o sisavcima",
-					startAt: "2022-01-8T16:00:00.311058+00:00",
-				},
-			],
-			newSections: [
-				{
-					title: "sekcija o sisavcima",
-					startAt: "2022-01-8T17:00:00.311058+00:00",
-				},
-			],
-		},
-	},
-];
+// const fakeNotifications = [
+// 	{
+// 		eventId: 1,
+// 		eventName: "Event o životinjama",
+// 		note: "ponesite maske",
+// 		eventChanges: {
+// 			oldStart: "2021-11-18T18:59:06.311058+00:00",
+// 			newStart: "2021-11-18T19:59:06.311058+00:00",
+// 			oldSections: [
+// 				{
+// 					title: "sekcija o sisavcima",
+// 					startAt: "2022-01-8T16:00:00.311058+00:00",
+// 				},
+// 			],
+// 			newSections: [
+// 				{
+// 					title: "sekcija o sisavcima",
+// 					startAt: "2022-01-8T17:00:00.311058+00:00",
+// 				},
+// 			],
+// 		},
+// 	},
+// 	{
+// 		eventId: 2,
+// 		eventName: "Event o ženama",
+// 		note: "ponesite maske opet",
+// 		eventChanges: {
+// 			oldStart: "2021-11-18T18:59:06.311058+00:00",
+// 			newStart: "2021-11-18T19:59:06.311058+00:00",
+// 			oldSections: [
+// 				{
+// 					title: "sekcija o sisavcima",
+// 					startAt: "2022-01-8T16:00:00.311058+00:00",
+// 				},
+// 			],
+// 			newSections: [
+// 				{
+// 					title: "sekcija o sisavcima",
+// 					startAt: "2022-01-8T17:00:00.311058+00:00",
+// 				},
+// 			],
+// 		},
+// 	},
+// ];
 
 const NavigationBar = () => {
 	const authCtx = useContext(AuthContext);
@@ -142,27 +143,34 @@ const NavigationBar = () => {
 		setNewNotification(null);
 	}
 
+
 	// fetch notifications and set how many are unseen by user
 	useEffect(() => {
-		const noOfFetchedNotifications = fakeNotifications.length;
-		const currentUnseenNotifications = localStorage.getItem(
-			"noOfNewNotifications"
-		);
-
-		if (!currentUnseenNotifications) {
-			localStorage.setItem("noOfNewNotifications", noOfFetchedNotifications);
-			setNoOfNewNotifications(noOfFetchedNotifications);
-		} else if (+currentUnseenNotifications === 0) {
-			setNoOfNewNotifications(0);
-		} else {
-			localStorage.setItem(
-				"noOfNewNotifications",
-				noOfFetchedNotifications - currentUnseenNotifications
-			);
-			setNoOfNewNotifications(
-				noOfFetchedNotifications - currentUnseenNotifications
-			);
+		const userId = authCtx.userid;
+		async function fetchData() {
+			return await getUserNotifications(userId);
 		}
+
+		fetchData().then(notifications => {
+			const currentUnseenNotifications = localStorage.getItem(
+				"noOfNewNotifications"
+			);
+
+			if (!currentUnseenNotifications) {
+				localStorage.setItem("noOfNewNotifications", notifications.length);
+				setNoOfNewNotifications(notifications.length);
+			} else if (+currentUnseenNotifications === 0) {
+				setNoOfNewNotifications(0);
+			} else {
+				localStorage.setItem(
+					"noOfNewNotifications",
+					notifications.length - currentUnseenNotifications
+				);
+				setNoOfNewNotifications(
+					notifications.length - currentUnseenNotifications
+				);
+			}
+		})
 	}, []);
 
 	useEffect(() => {
