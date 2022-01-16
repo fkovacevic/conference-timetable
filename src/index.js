@@ -8,12 +8,12 @@ import { AuthContextProvider } from "./auth_store/auth-context";
 import { register } from "./serviceWorkerRegistration";
 
 ReactDOM.render(
-  <AuthContextProvider>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  </AuthContextProvider>,
-  document.getElementById("root")
+	<AuthContextProvider>
+		<React.StrictMode>
+			<App />
+		</React.StrictMode>
+	</AuthContextProvider>,
+	document.getElementById("root")
 );
 
 register();

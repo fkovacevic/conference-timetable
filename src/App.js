@@ -13,67 +13,65 @@ import ConferenceSearch from "./pages/Landingpage/ConferenceSearch";
 import AuthContext from "./auth_store/auth-context";
 import ErrorPage from "./pages/ErrorPage/ErrorPage";
 
-
 const App = () => {
-  console.log("build up234")
-  const authCtx = useContext(AuthContext);
+	console.log("build up234");
+	const authCtx = useContext(AuthContext);
 
-  return (
-    <>
-      
-      {/* <Button onClick={unSub}>an sab ebbe</Button> */}
-      <BrowserRouter>
-        {authCtx.isLoggedIn && <NavigationBar></NavigationBar>}
-        <Switch>
-          {!authCtx.isLoggedIn && (
-            <Route exact path="/">
-              <Redirect to="login"></Redirect>
-            </Route>
-          )}
-          {authCtx.isLoggedIn && (
-            <Route exact path="/">
-              <Redirect to="home"></Redirect>
-            </Route>
-          )}
+	return (
+		<>
+			{/* <Button onClick={unSub}>an sab ebbe</Button> */}
+			<BrowserRouter>
+				{authCtx.isLoggedIn && <NavigationBar></NavigationBar>}
+				<Switch>
+					{!authCtx.isLoggedIn && (
+						<Route exact path="/">
+							<Redirect to="login"></Redirect>
+						</Route>
+					)}
+					{authCtx.isLoggedIn && (
+						<Route exact path="/">
+							<Redirect to="home"></Redirect>
+						</Route>
+					)}
 
-          {!authCtx.isLoggedIn && (
-            <Route exact path="/login">
-              <Login />
-            </Route>
-          )}
-          {!authCtx.isLoggedIn && (
-            <Route exact path="/register">
-              <Register />
-            </Route>
-          )}
-          {authCtx.isLoggedIn && (
-            <Route exact path="/home">
-              <ConferenceSearch></ConferenceSearch>
-            </Route>
-          )}
-          {authCtx.isLoggedIn && (
-            <Route exact path="/calendar/:conferenceId">
-              <Calendar />
-            </Route>
-          )}
-          <Route path="/tryout">
-            <Homepage></Homepage>
-          </Route>
-          <Route path="/error">
-            <ErrorPage></ErrorPage>
-          </Route>
-          {authCtx.isLoggedIn && (
-            <Route exact path="/notifications">
-              <Notifications />
-            </Route>
-          )}
-          <Route path="*">
-            <Redirect to="/" />
-          </Route>
-        </Switch>
-      </BrowserRouter>
-    </>
-  );
+					{!authCtx.isLoggedIn && (
+						<Route exact path="/login">
+							<Login />
+						</Route>
+					)}
+					{!authCtx.isLoggedIn && (
+						<Route exact path="/register">
+							<Register />
+						</Route>
+					)}
+					{authCtx.isLoggedIn && (
+						<Route exact path="/home">
+							<ConferenceSearch></ConferenceSearch>
+						</Route>
+					)}
+					{authCtx.isLoggedIn && (
+						<Route exact path="/calendar/:conferenceId">
+							<Calendar />
+						</Route>
+					)}
+					<Route path="/tryout">
+						<Homepage></Homepage>
+					</Route>
+					<Route path="/error">
+						<ErrorPage></ErrorPage>
+					</Route>
+					{authCtx.isLoggedIn && (
+						<Route exact path="/notifications">
+							<Notifications />
+						</Route>
+					)}
+					<Route path="*">
+						<Redirect to="/" />
+					</Route>
+				</Switch>
+			</BrowserRouter>
+		</>
+	);
 };
 
 export default App;
