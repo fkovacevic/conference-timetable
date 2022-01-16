@@ -208,6 +208,80 @@ export const deleteSectionPresentation = async (id) => {
   return axios.delete(`${apiPath}/presentations/${id}`, config);
 };
 
+// Presentation attachment
+
+export const getPresentationAttachment = async (id, file) => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  
+  const { data } = await axios.get(`${apiPath}/presentations/${id}/attachments`, file, config);
+  return data;
+}
+
+export const addPresentationAttachment = async (id, attachment) => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  
+  return axios.post(`${apiPath}/presentations/${id}/attachments`, attachment, config);
+};
+
+export const deletePresentationAttachment = async (id) => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  
+  return axios.delete(`${apiPath}/presentations/${id}/attachments`, config);
+};
+
+
+// Presentation main author photo
+
+export const getPresentationAuthorPhoto = async (id) => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  
+  const { data } = await axios.get(`${apiPath}/presentations/${id}/photos`, config);
+  return data;
+}
+
+export const addPresentationAuthorPhoto = async (id, attachment) => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  
+  return axios.post(`${apiPath}/presentations/${id}/photos`, attachment, config);
+};
+
+export const deletePresentationAuthorPhoto = async (id) => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  
+  return axios.delete(`${apiPath}/presentations/${id}/photos`, config);
+};
+
+
 
 // Data
 

@@ -20,6 +20,8 @@ import {
   deleteEventSection,
   updateSectionPresentation,
   deleteSectionPresentation,
+  addPresentationAttachment,
+  addPresentationAuthorPhoto,
 } from '../../../services/EventService';
 
 import { Collapse } from 'antd';
@@ -219,10 +221,14 @@ const AdminConferencePage = () => {
     })
   }
 
+  const submitPresentationFiles = (presentationId, presentation) => {
+    return Promise.all([
+      addPresentationAttachment(presentationId, presentation.attachment), 
+      addPresentationAuthorPhoto(presentationId, presentation.authorPhoto)
+    ])
+  }
+
   const onSubmitPresentations = ({presentations}) => {
-    console.log(presentations);
-    console.log(presentationsOptions);
-    const presentationsIds = presentations.map(presentation => presentation.id);
     const presentationsToRemove = presentationsOptions.filter(p => !presentationsIds.includes(p.id));
     Promise.all([...presentations.map(presentation => {
         const requestData = {
@@ -235,10 +241,11 @@ const AdminConferencePage = () => {
         }
 
         return presentation && presentation.id ?
-          updateSectionPresentation(presentation.id, requestData)
-          : addSectionPresentation(requestData);
+          updateSectionPresentation(presentation.id, requestData).then(() => submitPresentationFiles(presentation.id, presentation))
+          : addSectionPresentation(requestData).then(({id}) => submitPresentationFiles(id, presentation));
         }
-      ), ...presentationsToRemove.map((presentation) => deleteSectionPresentation(presentation.id))
+      ),
+        ...presentationsToRemove.map((presentation) => deleteSectionPresentation(presentation.id))
     ]).then(() => {
       setPresentationsOptions([]);
       // TODO should fetch all event presentations
@@ -251,20 +258,27 @@ const AdminConferencePage = () => {
     })
   }
 
-  const uploadAttachment = (e) => {
-    console.log('Upload event:', e);
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && e.fileList;
+  const onUploadAttachment = ({file}) => {
+    const formData = new FormData();
+
+    formData.append(
+      "attachment",
+      file,
+      file.name
+    );
+
+    return formData;
   };
 
-  const uploadAuthorPhoto = (e) => {
-    console.log('Upload event:', e);
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && e.fileList;
+  const onUploadAuthorPhoto = ({file}) => {
+    const formData = new FormData();
+    formData.append(
+      "photo",
+      file,
+      file.name
+    );
+
+   return formData;
   };
 
   return (
@@ -594,21 +608,19 @@ const AdminConferencePage = () => {
                           <Form.Item 
                             label="Attachment"
                             name={[index, "attachment"]}
-                            valuePropName="file"
-                            getValueFromEvent={uploadAttachment}
+                            getValueFromEvent={onUploadAttachment}
                           >
-                            <Upload name="attachment" action="/upload.do" listType="picture">
-                              <Button icon={<UploadOutlined />}>Click to upload</Button>
+                            <Upload name="attachment" listType="picture" multiple={false} beforeUpload={() => false} maxCount={1}>
+                              <Button icon={<UploadOutlined />}>Upload presentation file</Button>
                             </Upload>
                           </Form.Item>
                           <Form.Item 
                             label="Main author photo"
                             name={[index, "authorPhoto"]}
-                            valuePropName="file"
-                            getValueFromEvent={uploadAuthorPhoto}
+                            getValueFromEvent={onUploadAuthorPhoto}
                           >
-                            <Upload name="authorPhoto" action="/upload.do" listType="picture">
-                              <Button icon={<UploadOutlined />}>Click to upload</Button>
+                            <Upload name="authorPhoto" listType="picture" beforeUpload={() => false} maxCount={1}>
+                              <Button icon={<UploadOutlined />}>Upload main author photo</Button>
                             </Upload>
                           </Form.Item>
                         </Form.Item>
