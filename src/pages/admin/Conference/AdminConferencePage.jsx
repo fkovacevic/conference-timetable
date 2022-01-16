@@ -66,7 +66,7 @@ const emptySectionForm = {
   location: null,
   sectionDateRange: null,
   chairmen: [''],
-  backgroundColor: {}
+  backgroundColor: null
 }
 
 const emptyPresentationForm = {
@@ -379,7 +379,7 @@ const AdminConferencePage = () => {
                           >
                             <RangePicker showTime format="DD-MM-YYYY HH:mm" />
                           </Form.Item>
-                          <Form.List label="Chairmen"  name={[index, "chairmen"]}>
+                          <Form.List label="Chairmen" initialValue={['']} name={[index, "chairmen"]}>
                             {(chairmen, { add, remove }, { errors }) => (
                               <>
                                 {chairmen.map((chairman, index) => (
@@ -503,7 +503,7 @@ const AdminConferencePage = () => {
                               )}
                             </Select>
                           </Form.Item>
-                          <Form.List label="Authors"  name={[index, "authors"]}>
+                          <Form.List label="Authors" initialValue={['']}  name={[index, "authors"]}>
                             {(authors, { add, remove: removeAuthor }, { errors }) => (
                               <>
                                 {authors.map((author, index) => (
