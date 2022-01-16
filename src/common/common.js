@@ -3,5 +3,6 @@ export const numberToHexColor = (numberColor) => {
 };
 
 export const hexToNumber = (hexString) => {
-    return parseInt(hexString.substring(1), 16);
+    const parsedHexStrig = hexString.replace('#', '');
+    return parseInt(parsedHexStrig, 16);
 }

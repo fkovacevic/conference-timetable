@@ -133,11 +133,10 @@ export const addEventSection = async section => {
     }
   };
   
-  const { data } = await axios.post(`${apiPath}/sections`, section, config);
-  return data;
+  return axios.post(`${apiPath}/sections`, section, config);
 };
 
-export const updateEventSection = async section => {
+export const updateEventSection = async (id, section) => {
   const token = localStorage.getItem('token');
   const config = {
     headers: {
@@ -145,7 +144,7 @@ export const updateEventSection = async section => {
     }
   };
   
-  const { data } = await axios.put(`${apiPath}/sections/${section.id}`, section, config);
+  const { data } = await axios.put(`${apiPath}/sections/${id}`, section, config);
   return data;
 };
 
@@ -157,8 +156,7 @@ export const deleteEventSection = async id => {
     }
   };
   
-  const { data } = await axios.delete(`${apiPath}/sections/${id}`, config);
-  return data;
+  return await axios.delete(`${apiPath}/sections/${id}`, config);
 };
 
 

@@ -16,6 +16,8 @@ import {
   updateEvent,
   updateEventLocation,
   deleteEventLocation,
+  updateEventSection,
+  deleteEventSection,
 } from '../../../services/EventService';
 
 import { Collapse } from 'antd';
@@ -59,6 +61,7 @@ const dateRangeConfig = {
 };
 
 const emptySectionForm = {
+  id: null,
   title: '',
   location: null,
   sectionDateRange: null,
@@ -122,6 +125,7 @@ const AdminConferencePage = () => {
       sectionsForm.setFieldsValue({
         sections: sections.map((section) => {
           return {
+            id: section.id,
             title: section.title,
             location: section.locationId,
             chairmen: section.chairs,
@@ -185,7 +189,9 @@ const AdminConferencePage = () => {
   }
   
   const onSubmitSections = ({sections}) => {
-    sections.forEach(section => {
+    const sectionsIds = sections.map(section => section.id);
+    const sectionsToRemove = sectionsOptions.filter(s => !sectionsIds.includes(s.id));
+    Promise.all([...sections.map(section => {
       const requestData = {
         eventId,
         title: section.title,
@@ -196,9 +202,15 @@ const AdminConferencePage = () => {
         backgroundColor: hexToNumber(section.backgroundColor)
       }
 
-      section && addEventSection(requestData)
-      }
-    )
+      return section && section.id ? 
+        updateEventSection(section.id, requestData)
+        : addEventSection(requestData)
+      }),
+      ...sectionsToRemove.map((section) => deleteEventSection(section.id))
+    ]).then(() => getEventSections(eventId)).then((sections) => {
+      setSectionsOptions(sections);
+      setSectionsForm(sections);
+    })
   }
 
   const onSubmitPresentations = ({presentations}) => {
