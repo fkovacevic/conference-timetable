@@ -120,8 +120,10 @@ const AdminConferencePage = () => {
           }))
         ])
         .then((presentations) => {
-          setPresentationsOptions(presentations[0]);
-          setPresentationsForm(presentations[0]);
+          if (presentations.length) {
+            setPresentationsOptions(presentations[0]);
+            setPresentationsForm(presentations[0]);
+          }
         })
       })
     }
@@ -258,7 +260,6 @@ const AdminConferencePage = () => {
       ),
         ...presentationsToRemove.map((presentation) => deleteSectionPresentation(presentation.id))
     ]).then(() => {
-      setPresentationsOptions([]);
       // TODO should fetch all event presentations
       Promise.all([
         ...sectionsOptions.map((section) => getSectionPresentations(section.id)
@@ -279,19 +280,19 @@ const AdminConferencePage = () => {
   }
 
   const setPresentationsForm = (presentations) => {
-    presentationsForm.setFieldsValue({presentations: [ ...presentations.map(presentation => {
-      return {
-        id: presentation.id,
-        section: presentation.section,
-        title: presentation.title,
-        authors: presentation.authors,
-        description: presentation.description,
-        durationMinutes: presentation.durationMinutes,
-        position: 1,
-        attachmentFileName: presentation.attachmentFileName,
-        hasPhoto: presentation.hasPhoto
-      }
-    })]})
+      presentationsForm.setFieldsValue({presentations: [ ...presentations.map(presentation => {
+        return {
+          id: presentation.id,
+          section: presentation.section,
+          title: presentation.title,
+          authors: presentation.authors,
+          description: presentation.description,
+          durationMinutes: presentation.durationMinutes,
+          position: 1,
+          attachmentFileName: presentation.attachmentFileName,
+          hasPhoto: presentation.hasPhoto
+        }
+      })]})
   }
 
   const onUploadAttachment = ({file}) => {
