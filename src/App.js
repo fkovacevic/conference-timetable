@@ -56,18 +56,21 @@ const App = () => {
             <Homepage></Homepage>
           </Route>
 
-          <Route exact path="/conferences">
-            <AdminConferencesPage />
-          </Route>
+          {authCtx.isLoggedIn && authCtx.isAdmin && (
+            <>
+              <Route exact path="/conferences">
+                <AdminConferencesPage />
+              </Route>
 
-          <Route exact path="/conferences/new">
-            <AdminConferencePage />
-          </Route>
+              <Route exact path="/conferences/new">
+                <AdminConferencePage />
+              </Route>
 
-          <Route exact path="/conferences/:conferenceId">
-            <AdminConferencePage />
-          </Route>
-
+              <Route exact path="/conferences/:conferenceId">
+                <AdminConferencePage />
+              </Route>
+            </>
+          )}
 
           <Route path="*">
             <Redirect to="/" />

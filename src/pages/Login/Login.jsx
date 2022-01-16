@@ -23,7 +23,7 @@ function Login(props) {
         console.log(result.data);
    
 
-        authCtx.login(result.data.token, result.data.userId);
+        authCtx.login(result.data.token, result.data.userId, result.data.isAdmin);
 
         history.push("/home");
       })

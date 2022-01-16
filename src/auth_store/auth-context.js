@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 const AuthContext = React.createContext({
   token: "",
+  isAdmin: false,
   isLoggedIn: false,
   login: (token,uid) => {},
   logout: () => {},
@@ -18,6 +19,10 @@ const retrieveToken = () => {
   return null;
 };
 
+const retrieveIsAdmin = () => {
+  return localStorage.getItem("isAdmin") === 'true';
+}
+
 export const AuthContextProvider = (props) => {
   const tokenData = retrieveToken();
   const retievedUserid = localStorage.getItem("userid");
@@ -25,26 +30,31 @@ export const AuthContextProvider = (props) => {
   //console.log(tokenData);
 
   const [token, setToken] = useState(tokenData);
-  const [userid, setUserid] = useState(retievedUserid);
+  const [userid, setUserid] = useState(retievedUserid);  
+  const [isAdmin, setIsAdmin] = useState(retrieveIsAdmin());
 
   const userIsLoggedIN = !!token;
 
   const logoutHandler = useCallback(() => {
     setToken(null);
     setUserid(undefined);
+    setIsAdmin(false);
 
     localStorage.removeItem("token");
     localStorage.removeItem("userid");
+    localStorage.removeItem("isAdmin");
 
     window.location.assign("/login");
   }, []);
 
-  const loginHandler = (token, userid) => {
+  const loginHandler = (token, userid, admin) => {
     console.log("token je sad " + token);
     localStorage.setItem("token", token);
     localStorage.setItem("userid", userid);
+    localStorage.setItem("isAdmin", admin);
     setUserid(userid);
     setToken(token);
+    setIsAdmin(admin)
   };
 
   //   useEffect(() => {
@@ -57,6 +67,7 @@ export const AuthContextProvider = (props) => {
   const contextValue = {
     token: token,
     isLoggedIn: userIsLoggedIN,
+    isAdmin: isAdmin,
     login: loginHandler,
     logout: logoutHandler,
     userid: userid,
