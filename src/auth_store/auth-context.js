@@ -7,6 +7,7 @@ import { clearCacheAtLogout } from "../common/common";
 
 const AuthContext = React.createContext({
   token: "",
+  isAdmin: false,
   isLoggedIn: false,
   login: (token, uid) => {},
   logout: () => {},
@@ -21,6 +22,10 @@ const retrieveToken = () => {
   }
   return null;
 };
+
+const retrieveIsAdmin = () => {
+  return localStorage.getItem("isAdmin") === 'true';
+}
 
 export const AuthContextProvider = (props) => {
   const tokenData = retrieveToken();

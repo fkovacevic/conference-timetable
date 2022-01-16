@@ -1,10 +1,12 @@
-import React, { useContext } from "react";
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+import React, { useContext } from 'react';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
 import Homepage from "./pages/Homepage/Homepage";
 import Calendar from "./pages/Calendar/Calendar";
 import Notifications from "./pages/Notifications/Notifications";
 import NavigationBar from "./common/NavigationBar/NavigationBar";
+import AdminConferencePage from './pages/admin/Conference/AdminConferencePage';
+import AdminConferencesPage from './pages/admin/Conferences/AdminConferencesPage';
 
 import "./index.scss";
 import Login from "./pages/Login/Login";
@@ -64,6 +66,25 @@ const App = () => {
 							<Notifications />
 						</Route>
 					)}
+
+					{authCtx.isLoggedIn && (
+						<Route exact path="/conferences">
+							<AdminConferencesPage />
+						</Route>
+					)}
+
+					{authCtx.isLoggedIn && (
+						<Route exact path="/conferences/new">
+							<AdminConferencePage />
+						</Route>
+					)}
+
+					{authCtx.isLoggedIn && (
+						<Route exact path="/conferences/:conferenceId">
+							<AdminConferencePage />
+						</Route>
+					)}
+
 					<Route path="*">
 						<Redirect to="/" />
 					</Route>
