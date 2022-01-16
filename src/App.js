@@ -67,19 +67,19 @@ const App = () => {
 						</Route>
 					)}
 
-					{authCtx.isLoggedIn && (
-						<Route exact path="/conferences">
+					{authCtx.isLoggedIn && authCtx.isAdmin && (
+						<Route exact path="/admin">
 							<AdminConferencesPage />
 						</Route>
 					)}
 
-					{authCtx.isLoggedIn && (
+					{authCtx.isLoggedIn && authCtx.isAdmin && (
 						<Route exact path="/conferences/new">
 							<AdminConferencePage />
 						</Route>
 					)}
 
-					{authCtx.isLoggedIn && (
+					{authCtx.isLoggedIn && authCtx.isAdmin && (
 						<Route exact path="/conferences/:conferenceId">
 							<AdminConferencePage />
 						</Route>

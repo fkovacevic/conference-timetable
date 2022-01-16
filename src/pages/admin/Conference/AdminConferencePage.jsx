@@ -40,20 +40,16 @@ const { Panel } = Collapse;
 const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss[Z]';
 
 const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 4 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 20 },
-  },
+  labelCol: { span: 2, offset: 0 },
+  wrapperCol: { span: 15, offset: 1 },
 };
+
 const formItemLayoutWithOutLabel = {
-  wrapperCol: {
-    xs: { span: 24, offset: 0 },
-    sm: { span: 20, offset: 4 },
-  },
+  wrapperCol: { span: 15, offset: 2 },
+};
+
+const formItemAdd = {
+  wrapperCol: { span: 15, offset: 6 },
 };
 
 const dateRangeConfig = {
@@ -157,25 +153,6 @@ const AdminConferencePage = () => {
   const setLocationsForm = (locations) => {
     if (locations.length) {
       locationsForm.setFieldsValue({ locations })
-    }
-  }
-
-  const updatePresentationsForm = (sectionId, presentations) => {
-    const { presentations: currentPresentations } = presentationsForm.getFieldsValue();
-    if (presentations.length > 0) {
-      presentationsForm.setFieldsValue({presentations: [...(currentPresentations || []), ...presentations.map(presentation => {
-        return {
-          id: presentation.id,
-          section: sectionId,
-          title: presentation.title,
-          authors: presentation.authors,
-          description: presentation.description,
-          durationMinutes: presentation.durationMinutes,
-          position: 1,
-          attachmentFileName: presentation.attachmentFileName,
-          hasPhoto: presentation.hasPhoto
-        }
-      })]})
     }
   }
   
@@ -426,7 +403,7 @@ const AdminConferencePage = () => {
                       ) : null}
                     </Form.Item>
                   ))}
-                  <Form.Item>
+                  <Form.Item {...formItemLayoutWithOutLabel}>
                     <Button
                       type="dashed"
                       onClick={() => add()}
@@ -501,7 +478,7 @@ const AdminConferencePage = () => {
                                 {chairmen.map((chairman, index) => (
                                   <>
                                     <Form.Item
-                                      {...formItemLayoutWithOutLabel}
+                                      {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
                                       label={index === 0 ? 'Chairmen' : ''}
                                       required={true}
                                       key={chairman.key}
@@ -529,7 +506,7 @@ const AdminConferencePage = () => {
                                     </Form.Item>
                                   </>
                                 ))}
-                                <Form.Item>
+                                <Form.Item {...formItemLayoutWithOutLabel}>
                                   <Button
                                     type="dashed"
                                     onClick={() => add()}
@@ -563,7 +540,7 @@ const AdminConferencePage = () => {
                         </Form.Item>
                       </>
                     ))}
-                    <Form.Item>
+                    <Form.Item {...formItemAdd}>
                       <Button
                         type="dashed"
                         onClick={() => add()}
@@ -625,7 +602,7 @@ const AdminConferencePage = () => {
                                 {authors.map((author, index) => (
                                   <>
                                     <Form.Item
-                                      {...formItemLayoutWithOutLabel}
+                                      { ... (index === 0 || index == 1 ? formItemLayout : formItemLayoutWithOutLabel)}
                                       label={index === 0 ? 'Main author' : index === 1 ? 'Other authors' : ''}
                                       required={true}
                                       key={author.key}
@@ -653,7 +630,7 @@ const AdminConferencePage = () => {
                                     </Form.Item>
                                   </>
                                 ))}
-                                <Form.Item>
+                                <Form.Item {...formItemLayoutWithOutLabel}>
                                   <Button
                                     type="dashed"
                                     onClick={() => add()}
@@ -693,9 +670,9 @@ const AdminConferencePage = () => {
                               <Button icon={<UploadOutlined />}>Upload presentation file</Button>
                             </Upload>
                           </Form.Item>
-                          { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].attachmentFileName && (
+                          {/* { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].attachmentFileName && (
                             <a onClick={() => onDownloadAttachment(index)} download>Attachment file</a>
-                          )}
+                          )} */}
                           <Form.Item 
                             label="Main author photo"
                             name={[index, "authorPhoto"]}
@@ -705,9 +682,9 @@ const AdminConferencePage = () => {
                               <Button icon={<UploadOutlined />}>Upload main author photo</Button>
                             </Upload>
                           </Form.Item>
-                          { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].hasPhoto && (
+                          {/* { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].hasPhoto && (
                             <a onClick={() => onDownloadAuthorPhoto(index)} download>Main autho photo</a>
-                          )}
+                          )} */}
                         </Form.Item>
                         {presentations.length > 1 ? (
                           <MinusCircleOutlined
@@ -717,7 +694,7 @@ const AdminConferencePage = () => {
                         ) : null}
                       </>
                     ))}
-                    <Form.Item>
+                    <Form.Item {...formItemAdd}>
                       <Button
                         type="dashed"
                         onClick={() => add()}
