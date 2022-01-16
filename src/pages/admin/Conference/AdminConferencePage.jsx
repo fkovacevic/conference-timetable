@@ -159,25 +159,6 @@ const AdminConferencePage = () => {
       locationsForm.setFieldsValue({ locations })
     }
   }
-
-  const updatePresentationsForm = (sectionId, presentations) => {
-    const { presentations: currentPresentations } = presentationsForm.getFieldsValue();
-    if (presentations.length > 0) {
-      presentationsForm.setFieldsValue({presentations: [...(currentPresentations || []), ...presentations.map(presentation => {
-        return {
-          id: presentation.id,
-          section: sectionId,
-          title: presentation.title,
-          authors: presentation.authors,
-          description: presentation.description,
-          durationMinutes: presentation.durationMinutes,
-          position: 1,
-          attachmentFileName: presentation.attachmentFileName,
-          hasPhoto: presentation.hasPhoto
-        }
-      })]})
-    }
-  }
   
   const onSubmitEvent = (values) => {
     const requestData = {
@@ -693,9 +674,9 @@ const AdminConferencePage = () => {
                               <Button icon={<UploadOutlined />}>Upload presentation file</Button>
                             </Upload>
                           </Form.Item>
-                          { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].attachmentFileName && (
+                          {/* { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].attachmentFileName && (
                             <a onClick={() => onDownloadAttachment(index)} download>Attachment file</a>
-                          )}
+                          )} */}
                           <Form.Item 
                             label="Main author photo"
                             name={[index, "authorPhoto"]}
@@ -705,9 +686,9 @@ const AdminConferencePage = () => {
                               <Button icon={<UploadOutlined />}>Upload main author photo</Button>
                             </Upload>
                           </Form.Item>
-                          { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].hasPhoto && (
+                          {/* { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].hasPhoto && (
                             <a onClick={() => onDownloadAuthorPhoto(index)} download>Main autho photo</a>
-                          )}
+                          )} */}
                         </Form.Item>
                         {presentations.length > 1 ? (
                           <MinusCircleOutlined
