@@ -548,7 +548,7 @@ const AdminConferencePage = () => {
                                   <>
                                     <Form.Item
                                       {...formItemLayoutWithOutLabel}
-                                      label={index === 0 ? 'Authors' : ''}
+                                      label={index === 0 ? 'Main author' : index === 1 ? 'Other authors' : ''}
                                       required={true}
                                       key={author.key}
                                     >
