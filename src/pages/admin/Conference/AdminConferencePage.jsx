@@ -229,6 +229,7 @@ const AdminConferencePage = () => {
   }
 
   const onSubmitPresentations = ({presentations}) => {
+    const presentationsIds = presentations.map(presentation => presentation.id);
     const presentationsToRemove = presentationsOptions.filter(p => !presentationsIds.includes(p.id));
     Promise.all([...presentations.map(presentation => {
         const requestData = {
