@@ -113,12 +113,12 @@ const NavigationBar = () => {
         className="navigation-bar__menu-item"
         onClick={authCtx.logout}
       >
-        <Link>
+        <span>
           <div className="navigation-bar__option-container">
             <ImportOutlined />
             <div className="navigation-bar__option__name">Logout</div>
           </div>
-        </Link>
+        </span>
       </Menu.Item>
     </Menu>
   );
@@ -218,9 +218,9 @@ const NavigationBar = () => {
               <Button icon={<UserOutlined />}>Admin</Button>
             </Link>
           )}
-          <Link onClick={authCtx.logout}>
+          <span onClick={authCtx.logout}>
             <Button icon={<ImportOutlined />}>Logout</Button>
-          </Link>
+          </span>
         </div>
       ) : (
         <div className="navigation-bar__options">
