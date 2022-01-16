@@ -145,7 +145,7 @@ const SectionModal = ({ visible, setVisibility, sectionInfo }) => {
 									Led By:
 								</Col>
 								<Col sm={18}>
-									{chairs?.join(' ,')}
+									{chairs?.join(', ')}
 								</Col>
 							</Row>
 							<PresentationsList

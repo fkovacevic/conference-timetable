@@ -10,6 +10,7 @@ const NotificationTypes = {
     sectionAdded: 'Section Added',
     sectionEdited: 'Section Edited',
     sectionDeleted: 'Section Deleted',
+    customMessage: 'Message Added',
 };
 
 export default NotificationTypes;

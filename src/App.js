@@ -14,7 +14,6 @@ import AuthContext from "./auth_store/auth-context";
 import ErrorPage from "./pages/ErrorPage/ErrorPage";
 
 const App = () => {
-	console.log("build up234");
 	const authCtx = useContext(AuthContext);
 
 	return (
