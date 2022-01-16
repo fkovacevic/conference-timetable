@@ -171,8 +171,7 @@ export const getSectionPresentations = async (id) => {
     }
   };
   
-  const { data } = await axios.get(`${apiPath}/sections/${id}/presentations`, config);
-  return data;
+  return axios.get(`${apiPath}/sections/${id}/presentations`, config);
 }
 
 export const addSectionPresentation = async presentation => {
@@ -210,7 +209,7 @@ export const deleteSectionPresentation = async (id) => {
 
 // Presentation attachment
 
-export const getPresentationAttachment = async (id, file) => {
+export const getPresentationAttachment = async (id) => {
   const token = localStorage.getItem('token');
   const config = {
     headers: {
@@ -218,8 +217,7 @@ export const getPresentationAttachment = async (id, file) => {
     }
   };
   
-  const { data } = await axios.get(`${apiPath}/presentations/${id}/attachments`, file, config);
-  return data;
+  return axios.get(`${apiPath}/presentations/${id}/attachments`, config);
 }
 
 export const addPresentationAttachment = async (id, attachment) => {

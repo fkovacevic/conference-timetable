@@ -22,13 +22,15 @@ import {
   deleteSectionPresentation,
   addPresentationAttachment,
   addPresentationAuthorPhoto,
+  getPresentationAttachment,
+  getPresentationAuthorPhoto,
+  getSectionPresentations
 } from '../../../services/EventService';
 
 import { Collapse } from 'antd';
 import { Form, Input, DatePicker, Button, Select, InputNumber, Upload } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { hexToNumber, numberToHexColor } from '../../../common/common';
-import { getSectionPresentations } from '../../../services/SectionService';
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -106,16 +108,22 @@ const AdminConferencePage = () => {
       getEventSections(eventId).then((sections) => {
         setSectionsForm(sections);
         setSectionsOptions(sections);
-        sections.forEach((section) => {
-          getSectionPresentations(section.id).then((presentations) => {
-            // TODO should fetch all event presentations
-            setPresentationsOptions([...presentationsOptions, ...presentations]);
-            updatePresentationsForm(section.id, presentations);
-          })
+
+      Promise.all([
+        ...sections.map((section) => getSectionPresentations(section.id)
+          .then(({data}) =>  data)
+          .then((presentations) => { 
+            return new Promise( resolve => resolve(presentations.map((presentation) => {
+              presentation.section = section.id;
+              return presentation;
+            })))
+          }))
+        ])
+        .then((presentations) => {
+          setPresentationsOptions(presentations[0]);
+          setPresentationsForm(presentations[0]);
         })
       })
-      
-
     }
   }, [])
 
@@ -161,7 +169,9 @@ const AdminConferencePage = () => {
           authors: presentation.authors,
           description: presentation.description,
           durationMinutes: presentation.durationMinutes,
-          position: 1
+          position: 1,
+          attachmentFileName: presentation.attachmentFileName,
+          hasPhoto: presentation.hasPhoto
         }
       })]})
     }
@@ -223,8 +233,8 @@ const AdminConferencePage = () => {
 
   const submitPresentationFiles = (presentationId, presentation) => {
     return Promise.all([
-      addPresentationAttachment(presentationId, presentation.attachment), 
-      addPresentationAuthorPhoto(presentationId, presentation.authorPhoto)
+      presentation.attachment && addPresentationAttachment(presentationId, presentation.attachment), 
+      presentation.authorPhoto && addPresentationAuthorPhoto(presentationId, presentation.authorPhoto)
     ])
   }
 
@@ -243,20 +253,45 @@ const AdminConferencePage = () => {
 
         return presentation && presentation.id ?
           updateSectionPresentation(presentation.id, requestData).then(() => submitPresentationFiles(presentation.id, presentation))
-          : addSectionPresentation(requestData).then(({id}) => submitPresentationFiles(id, presentation));
+          : addSectionPresentation(requestData).then(({id}) => submitPresentationFiles(id, presentation))
         }
       ),
         ...presentationsToRemove.map((presentation) => deleteSectionPresentation(presentation.id))
     ]).then(() => {
       setPresentationsOptions([]);
       // TODO should fetch all event presentations
-      sectionsOptions.forEach((section) => {
-        getSectionPresentations(section.id).then((presentations) => {
-          setPresentationsOptions([...presentationsOptions, ...presentations]);
-          updatePresentationsForm(section.id, presentations);
+      Promise.all([
+        ...sectionsOptions.map((section) => getSectionPresentations(section.id)
+          .then(({data}) =>  data)
+          .then((presentations) => { 
+            return new Promise( resolve => resolve(presentations.map((presentation) => {
+              presentation.section = section.id;
+              return presentation;
+            })))
+          }))
+        ])
+        .then((presentations) => {
+          setPresentationsOptions(presentations[0]);
+          setPresentationsForm(presentations[0]);
         })
-      })
-    })
+      }
+    )
+  }
+
+  const setPresentationsForm = (presentations) => {
+    presentationsForm.setFieldsValue({presentations: [ ...presentations.map(presentation => {
+      return {
+        id: presentation.id,
+        section: presentation.section,
+        title: presentation.title,
+        authors: presentation.authors,
+        description: presentation.description,
+        durationMinutes: presentation.durationMinutes,
+        position: 1,
+        attachmentFileName: presentation.attachmentFileName,
+        hasPhoto: presentation.hasPhoto
+      }
+    })]})
   }
 
   const onUploadAttachment = ({file}) => {
@@ -270,6 +305,48 @@ const AdminConferencePage = () => {
 
     return formData;
   };
+
+  const onDownloadAttachment = (index) => {
+    const presentation = presentationsForm.getFieldsValue().presentations[index];
+    const presentationId = presentation.id;
+    const filename = presentation.attachmentFileName;
+    
+    getPresentationAttachment(presentationId).then((objectData) => {
+      let contentType = "application/octet-stream;charset=utf-8;";
+      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+        var blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(objectData)))], { type: contentType });
+        navigator.msSaveOrOpenBlob(blob, filename);
+      } else {
+        var a = document.createElement('a');
+        a.download = filename;
+        a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(objectData));
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    })
+  }
+
+  const onDownloadAuthorPhoto = (index) => {
+    const presentationId = presentationsForm.getFieldsValue().presentations[index].id;
+
+    getPresentationAuthorPhoto(presentationId).then((objectData) => {
+      let contentType = "application/octet-stream;charset=utf-8;";
+      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+        var blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(objectData)))], { type: contentType });
+        navigator.msSaveOrOpenBlob(blob, 'author_photo.jpeg');
+      } else {
+        var a = document.createElement('a');
+        a.download = 'author_photo.jpeg';
+        a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(objectData));
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    })
+  }
 
   const onUploadAuthorPhoto = ({file}) => {
     const formData = new FormData();
@@ -288,21 +365,21 @@ const AdminConferencePage = () => {
         <Panel header="Event" key="1">
           <Form form={eventForm}  onFinish={onSubmitEvent}>
             <Form.Item 
-              label="Event name"
+              label="Title"
               name="title"
               rules={[{ required: true, message: 'Event title is required' }]}
             >
               <Input />
             </Form.Item>
             <Form.Item
-              label="Event description"
+              label="Description"
               name="description"
               rules={[{ required: true, message: 'Event description is required' }]}
             >
               <TextArea />
             </Form.Item>
             <Form.Item
-              label="Event start and end time"
+              label="Start and end time"
               name="eventDateRange"
               {...dateRangeConfig}
             >
@@ -611,19 +688,25 @@ const AdminConferencePage = () => {
                             name={[index, "attachment"]}
                             getValueFromEvent={onUploadAttachment}
                           >
-                            <Upload name="attachment" listType="picture" multiple={false} beforeUpload={() => false} maxCount={1}>
+                            <Upload name="attachment" listType="picture" multiple={false} beforeUpload={() => false} maxCount={1} showUploadList={{showRemoveIcon: false}}>
                               <Button icon={<UploadOutlined />}>Upload presentation file</Button>
                             </Upload>
                           </Form.Item>
+                          { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].attachmentFileName && (
+                            <a onClick={() => onDownloadAttachment(index)} download>Attachment file</a>
+                          )}
                           <Form.Item 
                             label="Main author photo"
                             name={[index, "authorPhoto"]}
                             getValueFromEvent={onUploadAuthorPhoto}
                           >
-                            <Upload name="authorPhoto" listType="picture" beforeUpload={() => false} maxCount={1}>
+                            <Upload name="authorPhoto" listType="picture" beforeUpload={() => false} maxCount={1} showUploadList={{showRemoveIcon: false}}>
                               <Button icon={<UploadOutlined />}>Upload main author photo</Button>
                             </Upload>
                           </Form.Item>
+                          { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].hasPhoto && (
+                            <a onClick={() => onDownloadAuthorPhoto(index)} download>Main autho photo</a>
+                          )}
                         </Form.Item>
                         {presentations.length > 1 ? (
                           <MinusCircleOutlined
