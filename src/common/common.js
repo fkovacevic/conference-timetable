@@ -34,7 +34,7 @@ export const subscribeAfterLogin = (userId, token, subscription) => {
 };
 
 export const clearCacheAtLogout = () => {
-  const createdCaches = ["calendar", "eventovi", "userEvents", "sections"];
+  const createdCaches = ["calendar", "eventovi", "userEvents", "sections", "notifications"];
   caches.keys().then((keys) => {
     for (let name of createdCaches) {
       caches.delete(name);
