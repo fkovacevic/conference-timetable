@@ -95,7 +95,7 @@ registerRoute(
 // cache everything starting with /api/users/ and ending with /subscriptions
 // use network first since it might change often
 registerRoute(
-	({ url }) => url.pathname.startsWith('/api/users/') && url.pathname.endsWith('/subscriptions'),
+	({ url }) => url.pathname.startsWith('/api/users/') && url.pathname.endsWith('/notifications'),
 	new NetworkFirst({
 		cacheName: 'subscriptions',
 	})
