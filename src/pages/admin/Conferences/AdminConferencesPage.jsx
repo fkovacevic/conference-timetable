@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 import './admin-conferences-page.scss';
 
-import { getConferences, deleteConference, importData, exportData } from '../../../services/EventService';
+import { getConferences, deleteConference, importData, exportData, sendNotification } from '../../../services/EventService';
 
 import { Table, Tooltip, Button, Modal, Input, Form, Upload } from 'antd';
 import { EditFilled, NotificationFilled, DeleteFilled, UploadOutlined, ExportOutlined } from '@ant-design/icons';
@@ -19,19 +19,22 @@ const Conferences = () => {
   const [conferences, setConferences] = useState([]);
   const [fetchingConferences, setFetchingConferences] = useState(false);
   const [isNotificaionModalVisible, setIsNotificationModalVisible] = useState(false);
+  const [conferenceId, setConferenceId] = useState(null);
 
-  const openNotificationModal = () => {
+  const openNotificationModal = (id) => {
+    setConferenceId(id);
     setIsNotificationModalVisible(true);
   };
 
-  const sendNotification = (notification) => {
-    // TODO make API call to send notification
+  const onSendNotification = (message) => {
+    sendNotification(conferenceId, message.notification);
     form.resetFields();
     setIsNotificationModalVisible(false);
   };
 
   const closeNotificationModal = () => {
     form.resetFields();
+    setConferenceId(null);
     setIsNotificationModalVisible(false);
   };
 
@@ -130,7 +133,7 @@ const Conferences = () => {
               <EditFilled type="message" style={{ fontSize: '20px', color: '#72bcd4' }} onClick={() => onRedirectToConferencePage(conference.id)}/>
             </Tooltip>
             <Tooltip title="Notify subscribers">
-              <NotificationFilled style={{ fontSize: '20px', color: '#ffbf00' }} onClick={openNotificationModal}/>
+              <NotificationFilled style={{ fontSize: '20px', color: '#ffbf00' }} onClick={() => openNotificationModal(conference.id)}/>
             </Tooltip>
             <Tooltip title="Delete conference" onClick={() => onDeleteConference(conference.id)}>
               <DeleteFilled style={{ fontSize: '20px', color: '#ff0040' }} />
@@ -164,7 +167,7 @@ return (
       <Form
         id="notification-form"
         form={form}
-        onFinish={sendNotification}
+        onFinish={onSendNotification}
       >
         <Form.Item 
           label="Notification" 

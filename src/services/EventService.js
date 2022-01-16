@@ -305,3 +305,17 @@ export const exportData = async () => {
   const { data } = await axios.get(`${apiPath}/data`, config);
   return data;
 }
+
+// Notifications 
+
+export const sendNotification = async (eventId, message) => {
+  const token = localStorage.getItem('token');
+  const config = {
+      headers: {
+          Authorization: `Bearer ${token}`,
+      }
+  };
+
+  const { data } = await axios.post(`${apiPath}/notifications`, { eventId, message }, config);
+  return data;
+}
