@@ -20,16 +20,6 @@ const Conferences = () => {
   const [conferences, setConferences] = useState([]);
   const [fetchingConferences, setFetchingConferences] = useState(false);
   const [isNotificaionModalVisible, setIsNotificationModalVisible] = useState(false);
-  const [eventsData, setEventsData] = useState([]);
-  const [locationsData, setLocationsData] = useState([]);
-  const [sectionsData, setSectionsData] = useState([]);
-  const [presentationsData, setPresentationsData] = useState([]);
-
-  const eventsCsvLinkEl = useRef();
-  const locationsCsvLinkEl = useRef();
-  const sectionsCsvLinkEl = useRef();
-  const presentationsCsvLinkEl = useRef();
-
 
   const openNotificationModal = () => {
     setIsNotificationModalVisible(true);
@@ -63,10 +53,7 @@ const Conferences = () => {
   const onExportData = () => {
     exportData()
     .then((data) => {
-      setEventsData(data.events, setTimeout(() => eventsCsvLinkEl.current.link.click()))
-      setLocationsData(data.locations, setTimeout(() => locationsCsvLinkEl.current.link.click()))
-      setSectionsData(data.sections, setTimeout(() => sectionsCsvLinkEl.current.link.click()))
-      setPresentationsData(data.presentations, setTimeout(() => presentationsCsvLinkEl.current.link.click()))
+      exportToJson(data)
     })
   }
 
@@ -80,6 +67,23 @@ const Conferences = () => {
 
   const onDeleteConference = (conferenceId) => {
     deleteConference(conferenceId).then(() => fetchConferences());
+  }
+
+  const exportToJson = (objectData) => {
+    let filename = "export.json";
+    let contentType = "application/json;charset=utf-8;";
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+      var blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(objectData)))], { type: contentType });
+      navigator.msSaveOrOpenBlob(blob, filename);
+    } else {
+      var a = document.createElement('a');
+      a.download = filename;
+      a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(objectData));
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   }
 
   const columns = [
@@ -141,10 +145,6 @@ return (
     <Button type="primary" className='btn' onClick={onCreateNewConference}>Add new conference</Button>
     <Upload name="import" action="/upload.do" className='btn'><Button icon={<UploadOutlined />}>Import conferences data</Button></Upload>
     <Button icon={<ExportOutlined />} type="primary" className='btn' onClick={onExportData}>Export conferences data</Button>
-    <CSVLink filename="events.csv" data={eventsData} ref={eventsCsvLinkEl} />
-    <CSVLink filename="locations.csv" data={locationsData} ref={locationsCsvLinkEl} />
-    <CSVLink filename="sections.csv" data={sectionsData} ref={sectionsCsvLinkEl} />
-    <CSVLink filename="presentations.csv" data={presentationsData} ref={presentationsCsvLinkEl} />
 
     <div className='table-container'>
       <Table columns={columns} dataSource={conferences} loading={fetchingConferences} />
