@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 import './admin-conferences-page.scss';
-import { CSVLink } from "react-csv";
 
 import { getConferences, deleteConference, importData, exportData } from '../../../services/EventService';
 
@@ -46,8 +45,15 @@ const Conferences = () => {
     history.push(newConferenceRoute);
   }
 
-  const onImportData = () => {
-    // TODO import
+  const onImportData = (file) => {
+    const formData = new FormData();
+    formData.append(
+      "file",
+      file,
+      file.name
+    );
+
+    importData(formData).then(() => fetchConferences());
   }
 
   const onExportData = () => {
@@ -143,7 +149,7 @@ const Conferences = () => {
 return (
   <div>
     <Button type="primary" className='btn' onClick={onCreateNewConference}>Add new conference</Button>
-    <Upload name="import" action="/upload.do" className='btn'><Button icon={<UploadOutlined />}>Import conferences data</Button></Upload>
+    <Upload name="import" action={onImportData} className='btn' showUploadList={false} accept=".json"><Button icon={<UploadOutlined />}>Import conferences data</Button></Upload>
     <Button icon={<ExportOutlined />} type="primary" className='btn' onClick={onExportData}>Export conferences data</Button>
 
     <div className='table-container'>

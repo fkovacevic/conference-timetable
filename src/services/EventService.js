@@ -137,6 +137,31 @@ export const addEventSection = async section => {
   return data;
 };
 
+export const updateEventSection = async section => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  
+  const { data } = await axios.put(`${apiPath}/sections/${section.id}`, section, config);
+  return data;
+};
+
+export const deleteEventSection = async id => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  
+  const { data } = await axios.delete(`${apiPath}/sections/${id}`, config);
+  return data;
+};
+
+
 
 // Presentations
 
@@ -165,7 +190,7 @@ export const addSectionPresentation = async presentation => {
 };
 
 
-export const importData = async () => {
+export const importData = async (formData) => {
   const token = localStorage.getItem('token');
   const config = {
       headers: {
@@ -173,8 +198,7 @@ export const importData = async () => {
       }
   };
 
-  const { data } = await axios.post(`${apiPath}/data`, config);
-  return data;
+  return axios.post(`${apiPath}/data`, formData, config);
 }
 
 export const exportData = async () => {
