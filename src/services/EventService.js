@@ -183,10 +183,33 @@ export const addSectionPresentation = async presentation => {
     }
   };
   
-  const { data } = await axios.post(`${apiPath}/presentations`, presentation, config);
-  return data;
+  return axios.post(`${apiPath}/presentations`, presentation, config);
 };
 
+export const updateSectionPresentation = async (id, presentation) => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  
+  return axios.put(`${apiPath}/presentations/${id}`, presentation, config);
+};
+
+export const deleteSectionPresentation = async (id) => {
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  
+  return axios.delete(`${apiPath}/presentations/${id}`, config);
+};
+
+
+// Data
 
 export const importData = async (formData) => {
   const token = localStorage.getItem('token');

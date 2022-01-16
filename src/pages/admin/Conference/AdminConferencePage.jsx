@@ -18,6 +18,8 @@ import {
   deleteEventLocation,
   updateEventSection,
   deleteEventSection,
+  updateSectionPresentation,
+  deleteSectionPresentation,
 } from '../../../services/EventService';
 
 import { Collapse } from 'antd';
@@ -65,14 +67,13 @@ const emptySectionForm = {
   title: '',
   location: null,
   sectionDateRange: null,
-  chairmen: [''],
-  backgroundColor: null
+  backgroundColor: {}
 }
 
 const emptyPresentationForm = {
+  id: null,
   section: null,
   title: '',
-  authors: [''],
   description: '',
   durationMinutes: null,
 }
@@ -90,6 +91,8 @@ const AdminConferencePage = () => {
 
   const [locationsOptions, setLocationsOptions] = useState([]);
   const [sectionsOptions, setSectionsOptions] = useState([]);
+  const [presentationsOptions, setPresentationsOptions] = useState([]);
+
 
   useEffect(() => {
     if (eventId) {
@@ -99,11 +102,13 @@ const AdminConferencePage = () => {
         setLocationsOptions(locations)
       })
       getEventSections(eventId).then((sections) => {
-        setSectionsForm(sections)
+        setSectionsForm(sections);
         setSectionsOptions(sections);
         sections.forEach((section) => {
           getSectionPresentations(section.id).then((presentations) => {
-            updatePresentationsForm(section.id, presentations)
+            // TODO should fetch all event presentations
+            setPresentationsOptions([...presentationsOptions, ...presentations]);
+            updatePresentationsForm(section.id, presentations);
           })
         })
       })
@@ -148,6 +153,7 @@ const AdminConferencePage = () => {
     if (presentations.length > 0) {
       presentationsForm.setFieldsValue({presentations: [...(currentPresentations || []), ...presentations.map(presentation => {
         return {
+          id: presentation.id,
           section: sectionId,
           title: presentation.title,
           authors: presentation.authors,
@@ -214,7 +220,11 @@ const AdminConferencePage = () => {
   }
 
   const onSubmitPresentations = ({presentations}) => {
-    presentations.forEach(presentation => {
+    console.log(presentations);
+    console.log(presentationsOptions);
+    const presentationsIds = presentations.map(presentation => presentation.id);
+    const presentationsToRemove = presentationsOptions.filter(p => !presentationsIds.includes(p.id));
+    Promise.all([...presentations.map(presentation => {
         const requestData = {
           sectionId: presentation.section,
           title: presentation.title,
@@ -223,8 +233,21 @@ const AdminConferencePage = () => {
           position: 1,
           durationMinutes: presentation.durationMinutes
         }
-  
-        presentation && addSectionPresentation(requestData);
+
+        return presentation && presentation.id ?
+          updateSectionPresentation(presentation.id, requestData)
+          : addSectionPresentation(requestData);
+        }
+      ), ...presentationsToRemove.map((presentation) => deleteSectionPresentation(presentation.id))
+    ]).then(() => {
+      setPresentationsOptions([]);
+      // TODO should fetch all event presentations
+      sectionsOptions.forEach((section) => {
+        getSectionPresentations(section.id).then((presentations) => {
+          setPresentationsOptions([...presentationsOptions, ...presentations]);
+          updatePresentationsForm(section.id, presentations);
+        })
+      })
     })
   }
 
@@ -326,7 +349,7 @@ const AdminConferencePage = () => {
               </Form.List>
               <Form.Item>
                 <Button type="primary" htmlType="submit">
-                  {actionText} locations
+                  {locationsOptions.length == 0 ? 'Submit' : 'Update'} locations
                 </Button>
               </Form.Item>
             </Form>
