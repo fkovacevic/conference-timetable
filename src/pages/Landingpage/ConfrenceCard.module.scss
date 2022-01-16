@@ -1,0 +1,13 @@
+@import '../../constants/styles/color-constants';
+
+.card {
+  border: 2px solid lightgrey;
+  margin-top: 15px;
+  padding: 15px;
+}
+.flex {
+  display: flex;
+  justify-content: space-between;
+  margin-right: 30px;
+  margin-bottom: 15;
+}

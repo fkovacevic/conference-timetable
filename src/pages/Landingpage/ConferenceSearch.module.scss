@@ -1,0 +1,107 @@
+@import "../../constants/styles/color-constants";
+
+.flex {
+  display: flex;
+}
+
+.tabHolder {
+  display: flex;
+  justify-content: flex-start;
+  padding: 5% 10% 0% 10%;
+
+  button {
+    background-color: $theme-blue;
+    color: $background-color;
+    border: none;
+    width: 7em;
+
+    &.buttonactive {
+      background-color: $background-color;
+      color: $theme-blue;
+    }
+  }
+}
+.searchWrapper {
+  margin: auto;
+
+  width: 80%;
+  justify-content: center;
+  margin-bottom: 20px;
+  button {
+    background-color: $theme-blue;
+    color: $background-color;
+    border: none;
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: $background-color;
+      color: $theme-blue;
+    }
+  }
+}
+
+.search {
+  width: 60%;
+}
+.followed {
+  color: white;
+  width: 30%;
+  padding: 20px;
+  margin: 0 30px;
+  background-color: $theme-blue;
+  h2 {
+    color: $background-color;
+  }
+
+  button {
+    background-color: $background-color;
+    color: $theme-blue;
+    border: none;
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: $theme-blue;
+      color: $background-color;
+      border: $background-color 1px solid;
+    }
+  }
+}
+.adaptiveFlex {
+  margin-top: 5vh;
+  display: flex;
+  //background-color: $background-color;
+}
+.noneFollowed {
+  color: $background-color;
+}
+.scroll {
+  // height: 800px;
+  height: 70vh;
+  overflow: auto;
+}
+/*
+(max-width: 600px)
+*/
+
+@media only screen and (orientation: portrait) {
+  /* *{
+    font-size: 1vw;
+  } */
+  .adaptiveFlex {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .scroll {
+    height: 70vh;
+    overflow: auto;
+  }
+  .search {
+    width: 100%;
+    padding: 20px 0;
+  }
+  .followed {
+    width: 80%;
+    margin: 20px auto;
+  }
+}

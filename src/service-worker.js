@@ -8,10 +8,11 @@
 // service worker, and the Workbox build step will be skipped.
 
 import { clientsClaim } from 'workbox-core';
-import { ExpirationPlugin } from 'workbox-expiration';
+// import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { StaleWhileRevalidate } from 'workbox-strategies';
+import { CacheFirst, NetworkFirst } from 'workbox-strategies';
+import NotificationTypes from '../src/constants/enums/NotificationTypes';
 
 clientsClaim();
 
@@ -49,15 +50,54 @@ registerRoute(
 // An example runtime caching route for requests that aren't handled by the
 // precache, in this case same-origin .png requests like those from in public/
 registerRoute(
-	// Add in any other file extensions or routing criteria as needed.
-	({ url }) => url.origin === self.location.origin && url.pathname.endsWith('.png'), // Customize this strategy as needed, e.g., by changing to CacheFirst.
-	new StaleWhileRevalidate({
+	({ url }) => url.origin === self.location.origin && url.pathname.endsWith('.png'),
+	new CacheFirst({
 		cacheName: 'images',
-		plugins: [
-			// Ensure that once this runtime cache reaches a maximum size the
-			// least-recently used images are removed.
-			new ExpirationPlugin({ maxEntries: 50 }),
-		],
+	})
+);
+
+// cache everything starting with /api/events/
+// use network first since it might change often
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/events'),
+	new NetworkFirst({
+		cacheName: 'calendar',
+	})
+);
+
+//cache all events and user events
+//REMEMBER TO CLEAR CACHE AFTER
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/Events'),
+	new NetworkFirst({
+		cacheName: 'eventovi',
+	})
+);
+
+//cache all events and user events
+//REMEMBER TO CLEAR CACHE AFTER
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/Users'),
+	new NetworkFirst({
+		cacheName: 'userEvents',
+	})
+);
+
+// cache everything starting with /api/sections/
+// use network first since it might change often
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/sections/'),
+	new NetworkFirst({
+		cacheName: 'sections',
+	})
+);
+
+// cache everything starting with /api/users/ and ending with /notifications
+// use network first since it might change often
+registerRoute(
+	({ url }) => url.pathname.endsWith('/notifications'),
+	new NetworkFirst({
+		cacheName: 'notifications',
 	})
 );
 
@@ -67,6 +107,35 @@ registerRoute(
 self.addEventListener('message', (event) => {
 	if (event.data && event.data.type === 'SKIP_WAITING') {
 		self.skipWaiting();
+	}
+});
+
+// on receiving of push message, raise notification
+self.addEventListener('push', (event) => {
+
+	let data = {};
+	if (event.data) {
+		data = event.data.json();
+	}
+	const body = `${data.eventTitle} has ${NotificationTypes[data.type]}`;
+	const options = {
+		body,
+		icon: '/calendar-64.png',
+		vibrate: [100, 50, 100],
+		actions: [
+			{ action: 'check', title: 'Check changes' },
+		]
+	  };
+	  event.waitUntil(
+		self.registration.showNotification('New Schedule Changes!', options)
+	  );
+	  const swListener = new BroadcastChannel('swListener');
+	  swListener.postMessage(event.data.text());
+});
+
+self.addEventListener('notificationclick', (event) => {
+	if (event.action === 'check') {
+		self.clients.openWindow('/notifications');
 	}
 });
 
