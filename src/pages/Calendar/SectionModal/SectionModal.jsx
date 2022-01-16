@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, Spin } from 'antd';
+import React, { useEffect, useState, useContext } from 'react';
+import { Modal, Spin, Col, Row } from 'antd';
 
 import PresentationsList from './PresentationsList/PresentationsList';
 import { getSectionPresentations } from '../../../services/SectionService';
+import PageUnreachable from '../../../common/PageUnreachable/PageUnreachable';
 
 import './_section-modal.scss';
+import AuthContext from '../../../auth_store/auth-context';
 
 // const fetchedSectionMock = {
 //     "id": 1,
@@ -89,41 +91,71 @@ import './_section-modal.scss';
 
 
 const SectionModal = ({ visible, setVisibility, sectionInfo }) => {
-    const { title, start, id } = sectionInfo;
+	const { title, start, id, chairs } = sectionInfo;
 
-    const [presentations, setPresentations] = useState([]);
+	const [presentations, setPresentations] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [isErrorPresent, setIsErrorPresent] = useState(false);
+	const authCtx = useContext(AuthContext);
 
-    const onClose = () => setVisibility(false);
 
-    useEffect(() => {
-      async function fetchData() {
-        const presentations = await getSectionPresentations(id);
-        setPresentations(presentations);
-      }
-		if (visible){
+	const onClose = () => setVisibility(false);
+
+	useEffect(() => {
+		async function fetchData() {
+			const presentations = await getSectionPresentations(id);
+			setPresentations(presentations);
+		}
+		if (visible) {
 			setIsLoading(true);
-			fetchData().then(() => setIsLoading(false));
+			fetchData()
+				.then(() => {
+					setIsLoading(false)
+					setIsErrorPresent(false)
+				})
+				.catch((err) => {
+					console.log(err, "\n", err.message)
+					if (err.response.status === 401) {
+						authCtx.logout()
+					} else {
+						setIsErrorPresent(true)
+						setIsLoading(false)
+					}
+				}
+			);
 		}
-      }, [visible, id]);
+	}, [visible, id]);
 
-    return (
-        <Modal
-            visible={visible}
-            title={title}
-            onCancel={onClose}
-        >
-		{isLoading ?
-		<div className='section-modal--loading'>
-			<Spin size='large'></Spin>
-		</div> :
-		<PresentationsList
-			presentations={presentations}
-			sectionStart={start}
-		/>
-		}
-        </Modal>
-    );
+	return (
+		<Modal
+			visible={visible}
+			title={title}
+			onCancel={onClose}
+			footer={null}
+		>
+			{isErrorPresent ?
+				<PageUnreachable /> :
+					isLoading ?
+						<div className='section-modal--loading'>
+							<Spin size='large'></Spin>
+						</div> :
+						<>
+							<Row className="section-modal__chairs">
+								<Col sm={6} >
+									Led By:
+								</Col>
+								<Col sm={18}>
+									{chairs?.join(', ')}
+								</Col>
+							</Row>
+							<PresentationsList
+								presentations={presentations}
+								sectionStart={start}
+							/>
+						</>
+			}
+		</Modal>
+	);
 }
 
 export default SectionModal;

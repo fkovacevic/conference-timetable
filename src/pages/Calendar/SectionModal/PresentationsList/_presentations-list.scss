@@ -1,20 +1,18 @@
+@import '../../../../constants/styles/color-constants';
+
 .presentations-list {
 
-    &__left-element {
-        border-right: 2px solid black;
-        border-radius: 1px;
-        font-weight: 600;
+    &__author {
+        svg {
+            color: $theme-blue;
+        }
     }
-
-
     &__duration {
         margin-top: 24px;
     }
 
     &__description {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        margin-top: 6px;
         &__title {
             padding-left: 16px;
             font-weight: 600;
@@ -22,6 +20,33 @@
         }
         &__text {
             padding: 16px;
+        }
+    }
+
+    &__attachment {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 18px;
+        &__card {
+            display: flex;
+            justify-content: center;
+            padding: 8px;
+            font-size: 14px;
+            border: 0.5px solid grey;
+            background-color: hsl(0, 6%, 94%);
+            border-radius: 4px;
+            width: 80%;
+            cursor: pointer;
+            box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+            &__icon {
+                font-size: 24px;
+                margin-left: 8px;
+                color: $theme-blue;
+                svg {
+                    color: $theme-blue;
+                }
+            }
         }
     }
 }

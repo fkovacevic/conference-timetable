@@ -1,0 +1,34 @@
+@import "../../constants/styles/color-constants";
+
+.card {
+	border: 2px solid white;
+	margin-top: 15px;
+	padding: 15px;
+}
+.flex {
+	display: flex;
+	justify-content: space-between;
+	margin-right: 30px;
+	margin-bottom: 15;
+}
+
+.eventHover:hover {
+	text-decoration: underline;
+	color: $background-color;
+}
+.eventHover {
+	color: $background-color;
+}
+.flexColumn {
+	display: flex;
+	flex-direction: column;
+}
+.arrow {
+	margin: 0;
+	padding: 0;
+}
+
+.btnUnfollow {
+	width: 7em;
+  align-self: flex-end;
+}

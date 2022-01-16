@@ -5,4 +5,13 @@
         align-items: center;
         height: 300px;
     }
+    &__chairs {
+        font-size: 16px;
+        font-weight: 600;
+        padding: 8px;
+        margin-bottom: 8px;
+        &__title {
+            margin-right: 8px;
+        }
+    }
 }

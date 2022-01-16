@@ -1,0 +1,112 @@
+@import '../../constants/styles/color-constants';
+
+.navigation-bar {
+    height:50px;
+	position: sticky;
+	top: 0;
+    background-color: $theme-blue;
+    display: flex;
+    font-family: monospace;
+    font-size: 20px;
+    color: $background-color;
+    position: top;
+    top:0;
+    left:0;
+	z-index: 3;
+
+	&__proba {
+		color: red;
+	}
+
+	.ant-dropdown-menu {
+		background-color: black;
+	}
+
+	&__menu-item {
+		background-color: $theme-blue;
+	}
+
+	&__option {
+		width: 100%;
+		.ant-btn{
+			background-color: $theme-blue;
+			border: 1px solid $background-color;
+		}
+		&__name {
+			margin-left: 6px;
+			&--new-notif {
+				color: red;
+			}
+		}
+	}
+
+	&__option-container {
+		display: flex;
+		padding: 4px;
+		justify-content: center;
+		align-items: center;
+		color: $background-color;
+		font-family: monospace;
+		font-weight: 600;
+		&:active, &:hover, &:focus {
+			color: $theme-blue;
+		}
+	}
+
+
+    &__logo {
+        width: 50%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-left: 10%;
+		&__img {
+			width: 32px;
+			height: 32px;
+		}
+		&__name {
+			margin-left: 24px;
+			font-weight: 600;
+			font-size: 24px;
+			font-family: monospace;
+		}
+    }
+
+
+    &__options {
+        width: 50%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-right: 10%;
+		.ant-btn {
+			background-color: $theme-blue;
+			border: 1px solid $background-color;
+			color: $background-color;
+			margin-left: 16px;
+		}
+		.ant-btn:hover, .ant-btn:focus, .ant-btn:active {
+			background-color: $background-color;
+			color: $theme-blue;
+			border-color: $background-color;
+		}
+    }
+
+
+	@media(max-width: 800px) {
+		.navigation-bar {
+			&__logo{
+				&__name {
+					font-size: 16px;
+				}
+			}
+			&__option-container {
+				display: flex;
+				justify-content: center;
+				.ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+					color: white;
+				}
+			}
+	 	}
+    }
+}

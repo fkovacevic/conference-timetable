@@ -1,14 +1,18 @@
-import React, { useCallback, useEffect, useState } from "react";
-
+import axios from "axios";
+import React, { useState } from "react";
+import apiPath from "../constants/api/apiPath";
+import { unsubscribeUser, unsubscribeUserReturnSubscription } from "../common/common";
+import { clearCacheAtLogout } from "../common/common";
 // let logoutTimer;
 
 const AuthContext = React.createContext({
   token: "",
   isAdmin: false,
   isLoggedIn: false,
-  login: (token,uid) => {},
+  login: (token, uid) => {},
   logout: () => {},
   userid: undefined,
+  isAdmin: false,
 });
 
 const retrieveToken = () => {
@@ -26,35 +30,62 @@ const retrieveIsAdmin = () => {
 export const AuthContextProvider = (props) => {
   const tokenData = retrieveToken();
   const retievedUserid = localStorage.getItem("userid");
+  const retievedAdministrator = localStorage.getItem("isAdmin") === "true";
 
   //console.log(tokenData);
 
   const [token, setToken] = useState(tokenData);
-  const [userid, setUserid] = useState(retievedUserid);  
-  const [isAdmin, setIsAdmin] = useState(retrieveIsAdmin());
+  const [userid, setUserid] = useState(retievedUserid);
+  const [isAdministrator, setIsAdministrator] = useState(retievedAdministrator);
 
   const userIsLoggedIN = !!token;
 
-  const logoutHandler = useCallback(() => {
-    setToken(null);
-    setUserid(undefined);
-    setIsAdmin(false);
+  const logoutHandler = async () => {
+    var uId = userid;
+    var uToken = token;
 
     localStorage.removeItem("token");
     localStorage.removeItem("userid");
     localStorage.removeItem("isAdmin");
 
-    window.location.assign("/login");
-  }, []);
+    setToken(null);
+    setUserid(undefined);
+    setIsAdministrator(false);
 
-  const loginHandler = (token, userid, admin) => {
+    clearCacheAtLogout();
+    const {endpoint}= await unsubscribeUserReturnSubscription();
+    console.log("endpoint je " + endpoint);
+    axios
+      .delete(`${apiPath}/Users/${uId}/Subscriptions`, {
+        headers: {
+          Authorization: "Bearer " + uToken, //localStorage.getItem("token"),
+        },
+        data: {
+          endpoint: endpoint, // This is the body part
+        },
+      })
+      .then(async (res) => {
+        console.log("Uspio si deletat s --> ", res.status);
+        unsubscribeUser();
+        // const sub = await unsubscribeUserReturnSubscription();
+        // console.log(sub);
+        // console.log("endpoint je " + sub.endpoint);
+        // delete s URLom
+      })
+      .catch((err) => {
+        console.log(err.message ?? err);
+      });
+    window.location.assign("/login");
+  };
+
+  const loginHandler = (token, userid, isAdmin) => {
     console.log("token je sad " + token);
     localStorage.setItem("token", token);
     localStorage.setItem("userid", userid);
-    localStorage.setItem("isAdmin", admin);
+    localStorage.setItem("isAdmin", isAdmin);
     setUserid(userid);
     setToken(token);
-    setIsAdmin(admin)
+    setIsAdministrator(isAdmin);
   };
 
   //   useEffect(() => {
@@ -71,6 +102,7 @@ export const AuthContextProvider = (props) => {
     login: loginHandler,
     logout: logoutHandler,
     userid: userid,
+    isAdmin: isAdministrator,
   };
 
   return (

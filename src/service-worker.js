@@ -12,6 +12,7 @@ import { clientsClaim } from 'workbox-core';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { CacheFirst, NetworkFirst } from 'workbox-strategies';
+import NotificationTypes from '../src/constants/enums/NotificationTypes';
 
 clientsClaim();
 
@@ -64,12 +65,39 @@ registerRoute(
 	})
 );
 
+//cache all events and user events
+//REMEMBER TO CLEAR CACHE AFTER
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/Events'),
+	new NetworkFirst({
+		cacheName: 'eventovi',
+	})
+);
+
+//cache all events and user events
+//REMEMBER TO CLEAR CACHE AFTER
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/Users'),
+	new NetworkFirst({
+		cacheName: 'userEvents',
+	})
+);
+
 // cache everything starting with /api/sections/
 // use network first since it might change often
 registerRoute(
 	({ url }) => url.pathname.startsWith('/api/sections/'),
 	new NetworkFirst({
 		cacheName: 'sections',
+	})
+);
+
+// cache everything starting with /api/users/ and ending with /subscriptions
+// use network first since it might change often
+registerRoute(
+	({ url }) => url.pathname.startsWith('/api/users/') && url.pathname.endsWith('/notifications'),
+	new NetworkFirst({
+		cacheName: 'subscriptions',
 	})
 );
 
@@ -84,15 +112,31 @@ self.addEventListener('message', (event) => {
 
 // on receiving of push message, raise notification
 self.addEventListener('push', (event) => {
-	var options = {
-		body: event.data.text(),
-		icon: 'images/calendar-64.png',
-		vibrate: [100, 50, 100],
 
+	let data = {};
+	if (event.data) {
+		data = event.data.json();
+	}
+	const body = `${data.eventTitle} has ${NotificationTypes[data.type]}`;
+	const options = {
+		body,
+		icon: '/calendar-64.png',
+		vibrate: [100, 50, 100],
+		actions: [
+			{ action: 'check', title: 'Check changes' },
+		]
 	  };
 	  event.waitUntil(
-		self.registration.showNotification('Notification!', options)
+		self.registration.showNotification('New Schedule Changes!', options)
 	  );
+	  const swListener = new BroadcastChannel('swListener');
+	  swListener.postMessage(event.data.text());
+});
+
+self.addEventListener('notificationclick', (event) => {
+	if (event.action === 'check') {
+		self.clients.openWindow('/notifications');
+	}
 });
 
 // Any other custom service worker logic can go here.
