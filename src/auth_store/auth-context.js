@@ -23,10 +23,6 @@ const retrieveToken = () => {
   return null;
 };
 
-const retrieveIsAdmin = () => {
-  return localStorage.getItem("isAdmin") === 'true';
-}
-
 export const AuthContextProvider = (props) => {
   const tokenData = retrieveToken();
   const retievedUserid = localStorage.getItem("userid");
