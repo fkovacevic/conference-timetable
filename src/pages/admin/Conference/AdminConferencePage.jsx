@@ -234,9 +234,12 @@ const AdminConferencePage = () => {
         backgroundColor: hexToNumber(section.backgroundColor)
       }
 
-      return section && section.id ? 
-        updateEventSection(section.id, requestData)
-        : addEventSection(requestData)
+      if (!section || !section.id) {
+        return addEventSection(requestData);
+      }
+
+      const currentSection = savedSectionsForm.find(s => s.id == section.id);
+      return !isEqual(currentSection, section) && updateEventSection(section.id, requestData)
       }),
       ...sectionsToRemove.map((section) => deleteEventSection(section.id))
     ]).then(() => getEventSections(eventId)).then((sections) => {
@@ -509,8 +512,9 @@ const AdminConferencePage = () => {
                             label="Location"
                             name={[index, "location"]}
                             rules={[{ required: true, message: "Section location is required" }]}
+                            
                           >
-                            <Select>
+                            <Select onChange={checkSectionsFormDirty}>
                               {locationsOptions.map(
                                 location =>
                                   location && (
