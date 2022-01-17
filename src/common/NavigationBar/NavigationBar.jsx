@@ -219,9 +219,9 @@ const NavigationBar = () => {
 							<Button icon={<UserOutlined />}>Admin</Button>
 						</Link>
 					)}
-					<Link onClick={authCtx.logout}>
+					<span onClick={authCtx.logout}>
 						<Button icon={<ImportOutlined />}>Logout</Button>
-					</Link>
+					</span>
 				</div>
 			) : (
 				<div className="navigation-bar__options">

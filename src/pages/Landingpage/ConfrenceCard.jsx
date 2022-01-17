@@ -32,7 +32,7 @@ function ConfrenceCard(props) {
       <p>{props.description}</p>
       <p>{"Start:  " + transformDate(new Date(props.startAt))}</p>
       <p>{"End:  " + transformDate(new Date(props.endAt))}</p>
-      <p>{"Section count:  " + props.sectionCount}</p>
+      {/* <p>{"Section count:  " + props.sectionCount}</p> */}
     </div>
   );
 }
