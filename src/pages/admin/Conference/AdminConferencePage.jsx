@@ -29,7 +29,7 @@ import {
 } from '../../../services/EventService';
 
 import { Collapse } from 'antd';
-import { Form, Input, DatePicker, Button, Select, InputNumber, Upload, Tooltip, Avatar } from 'antd';
+import { Form, Input, DatePicker, Button, Select, InputNumber, Upload, Tooltip, Avatar, message } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { hexToNumber, numberToHexColor } from '../../../common/common';
 import apiPath from '../../../constants/api/apiPath';
@@ -332,7 +332,10 @@ const AdminConferencePage = () => {
 
   // Presentation attachment
 
-  const onUploadAttachment = ({file}) => {
+  const onUploadAttachment = (file, index) => {
+    if (!file) {
+      return;
+    }
     setPresentationsFormDirty(true);
     const formData = new FormData();
 
@@ -342,6 +345,7 @@ const AdminConferencePage = () => {
       file.name
     );
 
+    presentationsForm.getFieldsValue().presentations[index].attachment = formData;
     return formData;
   };
 
@@ -369,7 +373,11 @@ const AdminConferencePage = () => {
 
     // Main author photo
 
-    const onUploadAuthorPhoto = ({file}) => {
+    const onUploadAuthorPhoto = (file, index) => {
+      if (!file) {
+        return;
+      }
+
       setPresentationsFormDirty(true);
       const formData = new FormData();
       formData.append(
@@ -378,6 +386,7 @@ const AdminConferencePage = () => {
         file.name
       );
   
+      presentationsForm.getFieldsValue().presentations[index].authorPhoto = formData;
      return formData;
     };
  
@@ -396,6 +405,40 @@ const AdminConferencePage = () => {
 
       return currentDate.isBefore(eventStart) || currentDate.isAfter(eventEnd);
     }
+
+    function beforeAttachmentUpload(file) {
+      const isLt2M = file.size / 1024 < 2;
+      if (!isLt2M) {
+        message.error('Image must smaller than 2MB!');
+      }
+      if (!isLt2M) {
+        return Upload.LIST_IGNORE;
+      }
+
+      return isLt2M;
+    }
+
+    function beforePhotoUpload(file) {
+      const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+      if (!isJpgOrPng) {
+        message.error('You can only upload JPG/PNG file!');
+      }
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isLt2M) {
+        message.error('Image must smaller than 2MB!');
+      }
+
+      if (!(isJpgOrPng && isLt2M)) {
+        return Upload.LIST_IGNORE;
+      }
+      return isJpgOrPng && isLt2M;
+    }
+
+    const dummyRequest = ({ file, onSuccess }) => {
+      setTimeout(() => {
+        onSuccess("ok");
+      }, 0);
+    };
 
   return (
     <div>
@@ -738,10 +781,9 @@ const AdminConferencePage = () => {
                           <Form.Item 
                             label="Attachment"
                             name={[index, "attachment"]}
-                            getValueFromEvent={onUploadAttachment}
                             style={{marginBottom: '10px'}}
                           >
-                            <Upload name="attachment" listType="picture" multiple={false} beforeUpload={() => false} maxCount={1} showUploadList={{showRemoveIcon: false}}>
+                            <Upload customRequest={dummyRequest} name="attachment" listType="picture" multiple={false} onChange={(info) => onUploadAttachment(info.file.originFileObj, presentation.key)} beforeUpload={beforeAttachmentUpload} maxCount={1} showUploadList={{showRemoveIcon: false}}>
                               <Button icon={<UploadOutlined />}>Upload presentation file</Button>
                             </Upload>
                           </Form.Item>
@@ -751,10 +793,9 @@ const AdminConferencePage = () => {
                           <Form.Item 
                             label="Main author photo"
                             name={[index, "authorPhoto"]}
-                            getValueFromEvent={onUploadAuthorPhoto}
                             style={{marginTop: '10px'}}
                           >
-                            <Upload name="authorPhoto" listType="picture" beforeUpload={() => false} maxCount={1} showUploadList={{showRemoveIcon: false}}>
+                            <Upload customRequest={dummyRequest} name="authorPhoto" listType="picture" onChange={(info) => onUploadAuthorPhoto(info.file.originFileObj, presentation.key)} beforeUpload={beforePhotoUpload} maxCount={1} showUploadList={{showRemoveIcon: false}}>
                               <Button icon={<UploadOutlined />}>Upload main author photo</Button>
                             </Upload>
                           </Form.Item>
