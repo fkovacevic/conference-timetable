@@ -386,6 +386,17 @@ const AdminConferencePage = () => {
       return `${apiPath}/presentations/${presentationId}/photos`;
     }
 
+    const disableEventDate = (currentDate) => {
+      return currentDate.isBefore();
+    }
+
+    const disableSectionDate = (currentDate) => {
+      const eventStart = savedEventForm.eventDateRange[0];
+      const eventEnd = savedEventForm.eventDateRange[1];
+
+      return currentDate.isBefore(eventStart) || currentDate.isAfter(eventEnd);
+    }
+
   return (
     <div>
       <Collapse defaultActiveKey={['1']}>
@@ -410,7 +421,7 @@ const AdminConferencePage = () => {
               name="eventDateRange"
               {...dateRangeConfig}
             >
-              <RangePicker onChange={() => setEventsFormDirty(true)} showTime format="DD-MM-YYYY HH:mm" />
+              <RangePicker onChange={() => setEventsFormDirty(true)} showTime format="DD-MM-YYYY HH:mm" disabledDate={disableEventDate} />
             </Form.Item>
             <Button type="primary" htmlType="submit" disabled={!eventFormDirty}>{actionText} event</Button>
           </Form>
@@ -523,7 +534,7 @@ const AdminConferencePage = () => {
                             name={[index, "sectionDateRange"]}
                             {...dateRangeConfig}
                           >
-                            <RangePicker showTime format="DD-MM-YYYY HH:mm" onChange={() => setSectionsFormDirty(true)} />
+                            <RangePicker showTime format="DD-MM-YYYY HH:mm" onChange={() => setSectionsFormDirty(true)} disabledDate={disableSectionDate} />
                           </Form.Item>
                           <Form.List label="Chairmen" initialValue={['']} name={[index, "chairmen"]}>
                             {(chairmen, { add, remove }, { errors }) => (
