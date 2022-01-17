@@ -181,9 +181,13 @@ const AdminConferencePage = () => {
     const locationIds = locations.map(location => location.id);
     const locationsToRemove = locationsOptions.filter(l => !locationIds.includes(l.id));
     Promise.all([...locations.map(location => {
-      return location && location.id ?
-      updateEventLocation(location.id, {eventId, name: location.name})
-      : addEventLocation({eventId, name: location.name})
+      if (!location || !location.id) {
+        return addEventLocation({eventId, name: location.name});
+      }
+      
+      const currentLocation = locationsOptions.find(l => l.id == location.id);
+
+      return !isEqual(currentLocation, location) && updateEventLocation(location.id, {eventId, name: location.name})
     }), ...locationsToRemove.map((location) => deleteEventLocation(location.id))]
     ).then(() =>
       getEventLocations(eventId).then((locations) => {
