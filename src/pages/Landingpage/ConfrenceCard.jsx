@@ -1,21 +1,9 @@
 import React from "react";
 import { Button } from "antd";
+import moment from "moment";
+
 import classes from "./ConfrenceCard.module.scss";
-const transformDate = (m) => {
-  return (
-    ("0" + m.getUTCHours()).slice(-2) +
-    ":" +
-    ("0" + m.getUTCMinutes()).slice(-2) +
-    ":" +
-    ("0" + m.getUTCSeconds()).slice(-2) +
-    ", " +
-    ("0" + m.getUTCDate()).slice(-2) +
-    "/" +
-    ("0" + (m.getUTCMonth() + 1)).slice(-2) +
-    "/" +
-    m.getUTCFullYear()
-  );
-};
+
 function ConfrenceCard(props) {
   return (
     <div className={classes.card}>
@@ -30,8 +18,8 @@ function ConfrenceCard(props) {
         </Button>
       </div>
       <p>{props.description}</p>
-      <p>{"Start:  " + transformDate(new Date(props.startAt))}</p>
-      <p>{"End:  " + transformDate(new Date(props.endAt))}</p>
+      <p>{`Starts at: ${moment(props.startAt).format('DD.MM. HH:mm')}`}</p>
+      <p>{`Ends at: ${moment(props.endAt).format('DD.MM. HH:mm')}`}</p>
       {/* <p>{"Section count:  " + props.sectionCount}</p> */}
     </div>
   );
