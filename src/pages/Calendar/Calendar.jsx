@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 import { Calendar as ReactCalendar, momentLocalizer } from 'react-big-calendar'
-import { Input, Spin } from 'antd';
+import { Input, Spin, Row } from 'antd';
 import { CalendarTwoTone } from '@ant-design/icons'
 
 import { sectionsInfoToCalendarEvents, locationsToMap } from './helper';
@@ -137,9 +137,11 @@ const Calendar = () => {
   };
 
 	let conferenceInfo = '';
+	let confTime = ''
   	if (conference) {
 		const { title, startAt, endAt } = conference;
-		conferenceInfo = `${title}: ${moment(startAt).format('hh:mm A')} - ${moment(endAt).format('hh:mm A')}`
+		conferenceInfo = `${title}:`;
+		confTime = `${moment(startAt).format('DD.MM. HH:mm')} - ${moment(endAt).format('DD.MM. HH:mm')}`;
 	}
 
 
@@ -153,7 +155,8 @@ const Calendar = () => {
 				<div className="calendar__header-wrapper">
 					<div className="calendar__header">
 						<div className="calendar__header__info">
-							{conferenceInfo}
+							<Row>{conferenceInfo}</Row>
+							<Row>{confTime}</Row>
 						</div>
 						<div className="calendar__header__search">
 							<Search
