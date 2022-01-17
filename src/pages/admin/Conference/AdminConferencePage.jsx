@@ -290,7 +290,7 @@ const AdminConferencePage = () => {
         }
 
         if (!presentation || !presentation.id) {
-          return addSectionPresentation(requestData).then(({id}) => submitPresentationFiles(id, presentation));
+          return addSectionPresentation(requestData).then(({data}) => data).then(({id}) => submitPresentationFiles(id, presentation));
         }
 
         const currentPresentation = savedPresentationsForm.find(p => p.id == presentation.id);
@@ -748,7 +748,7 @@ const AdminConferencePage = () => {
                             </Upload>
                           </Form.Item>
 
-                          { savedPresentationsForm[index] && savedPresentationsForm[index].hasPhoto ?  
+                          { savedPresentationsForm[presentation.key] && savedPresentationsForm[presentation.key].hasPhoto ?  
                             <Avatar src={authorPhotoSrc(presentation.key)} style={{ marginLeft: '200px'}}/>
                             : null
                           }
