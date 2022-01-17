@@ -42,8 +42,8 @@ function presentationsMapper(presentation) {
             {presentation.attachmentFileName && (
                 <Row className="presentations-list__attachment">
                         <div className="presentations-list__attachment__card">
-                            <a href={`${apiPath}/presentations/${presentation.id}/attachments`} download>Download {presentation.attachmentFile}</a>
-                            <CloudDownloadOutlined className='presentations-list__attachment__card__icon'/>{presentation.attachmentFile}
+                            <a href={`${apiPath}/presentations/${presentation.id}/attachments`} download>Download {presentation.attachmentFileName}</a>
+                            <CloudDownloadOutlined className='presentations-list__attachment__card__icon'/>
                         </div>
                 </Row>
             )}
