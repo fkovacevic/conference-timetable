@@ -24,7 +24,6 @@ import {
   addPresentationAttachment,
   addPresentationAuthorPhoto,
   getPresentationAttachment,
-  getPresentationAuthorPhoto,
   getSectionPresentations
 } from '../../../services/EventService';
 
@@ -130,9 +129,10 @@ const AdminConferencePage = () => {
           }))
         ])
         .then((presentations) => {
-          if (presentations.length) {
-            setPresentationsOptions(presentations[0]);
-            setPresentationsForm(presentations[0]);
+          const allPresentations = [].concat.apply([], presentations);
+          if (allPresentations.length) {
+            setPresentationsOptions(allPresentations);
+            setPresentationsForm(allPresentations);
           }
         })
       })
@@ -311,8 +311,11 @@ const AdminConferencePage = () => {
           }))
         ])
         .then((presentations) => {
-          setPresentationsOptions(presentations[0]);
-          setPresentationsForm(presentations[0]);
+          const allPresentations = [].concat.apply([], presentations);
+          if (allPresentations.length) {
+            setPresentationsOptions(allPresentations);
+            setPresentationsForm(allPresentations);
+          }
         })
       }
     )
