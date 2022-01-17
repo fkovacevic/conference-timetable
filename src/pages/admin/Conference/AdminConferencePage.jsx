@@ -97,6 +97,9 @@ const AdminConferencePage = () => {
   const [savedEventForm, setSavedEventForm] = useState({});
   const [eventFormDirty, setEventsFormDirty] = useState(false);
 
+  const [savedLocationsForm, setSavedLocationsForm] = useState({});
+  const [locationsFormDirty, setLocationsFormDirty] = useState(false);
+
 
   useEffect(() => {
     if (eventId) {
@@ -164,9 +167,30 @@ const AdminConferencePage = () => {
   const setLocationsForm = (locations) => {
     if (locations.length) {
       locationsForm.setFieldsValue({ locations })
+      setSavedLocationsForm(locations);
     }
   }
 
+  const onSubmitLocations = async ({locations}) => {
+    const locationIds = locations.map(location => location.id);
+    const locationsToRemove = locationsOptions.filter(l => !locationIds.includes(l.id));
+    Promise.all([...locations.map(location => {
+      return location && location.id ?
+      updateEventLocation(location.id, {eventId, name: location.name})
+      : addEventLocation({eventId, name: location.name})
+    }), ...locationsToRemove.map((location) => deleteEventLocation(location.id))]
+    ).then(() =>
+      getEventLocations(eventId).then((locations) => {
+        setLocationsOptions(locations)
+        setLocationsForm(locations)
+    }))
+  }
+
+  const checkLocationsFormDirty = () => {
+    setLocationsFormDirty(!isEqual(savedLocationsForm, locationsForm.getFieldsValue().locations));
+  }
+
+  // Sections
 
   const setSectionsForm = (sections) => {
     if (sections.length > 0) {
@@ -185,25 +209,6 @@ const AdminConferencePage = () => {
     }
   }
 
- 
-  
-
-   
-  const onSubmitLocations = async ({locations}) => {
-    const locationIds = locations.map(location => location.id);
-    const locationsToRemove = locationsOptions.filter(l => !locationIds.includes(l.id));
-    Promise.all([...locations.map(location => {
-      return location && location.id ?
-      updateEventLocation(location.id, {eventId, name: location.name})
-      : addEventLocation({eventId, name: location.name})
-    }), ...locationsToRemove.map((location) => deleteEventLocation(location.id))]
-    ).then(() =>
-      getEventLocations(eventId).then((locations) => {
-        setLocationsOptions(locations)
-        setLocationsForm(locations)
-    }))
-  }
-  
   const onSubmitSections = ({sections}) => {
     const sectionsIds = sections.map(section => section.id);
     const sectionsToRemove = sectionsOptions.filter(s => !sectionsIds.includes(s.id));
@@ -229,11 +234,22 @@ const AdminConferencePage = () => {
     })
   }
 
-  const submitPresentationFiles = (presentationId, presentation) => {
-    return Promise.all([
-      presentation.attachment && addPresentationAttachment(presentationId, presentation.attachment), 
-      presentation.authorPhoto && addPresentationAuthorPhoto(presentationId, presentation.authorPhoto)
-    ])
+    // Presentations
+
+    const setPresentationsForm = (presentations) => {
+      presentationsForm.setFieldsValue({presentations: [ ...presentations.map(presentation => {
+        return {
+          id: presentation.id,
+          section: presentation.section,
+          title: presentation.title,
+          authors: presentation.authors,
+          description: presentation.description,
+          durationMinutes: presentation.durationMinutes,
+          position: 1,
+          attachmentFileName: presentation.attachmentFileName,
+          hasPhoto: presentation.hasPhoto
+        }
+      })]})
   }
 
   const onSubmitPresentations = ({presentations}) => {
@@ -275,21 +291,15 @@ const AdminConferencePage = () => {
     )
   }
 
-  const setPresentationsForm = (presentations) => {
-      presentationsForm.setFieldsValue({presentations: [ ...presentations.map(presentation => {
-        return {
-          id: presentation.id,
-          section: presentation.section,
-          title: presentation.title,
-          authors: presentation.authors,
-          description: presentation.description,
-          durationMinutes: presentation.durationMinutes,
-          position: 1,
-          attachmentFileName: presentation.attachmentFileName,
-          hasPhoto: presentation.hasPhoto
-        }
-      })]})
+  const submitPresentationFiles = (presentationId, presentation) => {
+    return Promise.all([
+      presentation.attachment && addPresentationAttachment(presentationId, presentation.attachment), 
+      presentation.authorPhoto && addPresentationAuthorPhoto(presentationId, presentation.authorPhoto)
+    ])
   }
+
+
+  // Presentation attachment
 
   const onUploadAttachment = ({file}) => {
     const formData = new FormData();
@@ -325,36 +335,38 @@ const AdminConferencePage = () => {
     })
   }
 
-  const onDownloadAuthorPhoto = (index) => {
-    const presentationId = presentationsForm.getFieldsValue().presentations[index].id;
+    // Main author photo
 
-    getPresentationAuthorPhoto(presentationId).then((objectData) => {
-      let contentType = "application/octet-stream;charset=utf-8;";
-      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-        var blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(objectData)))], { type: contentType });
-        navigator.msSaveOrOpenBlob(blob, 'author_photo.jpeg');
-      } else {
-        var a = document.createElement('a');
-        a.download = 'author_photo.jpeg';
-        a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(objectData));
-        a.target = '_blank';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-    })
-  }
+    const onUploadAuthorPhoto = ({file}) => {
+      const formData = new FormData();
+      formData.append(
+        "photo",
+        file,
+        file.name
+      );
+  
+     return formData;
+    };
+ 
+    const onDownloadAuthorPhoto = (index) => {
+      const presentationId = presentationsForm.getFieldsValue().presentations[index].id;
 
-  const onUploadAuthorPhoto = ({file}) => {
-    const formData = new FormData();
-    formData.append(
-      "photo",
-      file,
-      file.name
-    );
-
-   return formData;
-  };
+      getPresentationAuthorPhoto(presentationId).then((objectData) => {
+        let contentType = "application/octet-stream;charset=utf-8;";
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+          var blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(objectData)))], { type: contentType });
+          navigator.msSaveOrOpenBlob(blob, 'author_photo.jpeg');
+        } else {
+          var a = document.createElement('a');
+          a.download = 'author_photo.jpeg';
+          a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(objectData));
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      })
+    }
 
   return (
     <div>
@@ -389,7 +401,7 @@ const AdminConferencePage = () => {
         {eventId && (
           <>
           <Panel header="Locations" key="2">
-            <Form form={locationsForm} {...formItemLayoutWithOutLabel} initialValues={{ locations:[{ id: null, name: '' }] }} onFinish={onSubmitLocations} >
+            <Form form={locationsForm} {...formItemLayoutWithOutLabel} initialValues={{ locations:[{ id: null, name: '' }] }} onFinish={onSubmitLocations} onChange={checkLocationsFormDirty}>
               <Form.List label="Event locations" name="locations">
                 {(locations, { add, remove }, { errors }) => (
                 <>
@@ -417,7 +429,7 @@ const AdminConferencePage = () => {
                       {locations.length > 1 ? (
                         <MinusCircleOutlined
                           className="dynamic-delete-button"
-                          onClick={() => remove(location.name)}
+                          onClick={() => { remove(location.name);  setLocationsFormDirty(true) }}
                         />
                       ) : null}
                     </Form.Item>
@@ -425,7 +437,7 @@ const AdminConferencePage = () => {
                   <Form.Item {...formItemLayoutWithOutLabel}>
                     <Button
                       type="dashed"
-                      onClick={() => add()}
+                      onClick={() => { add(); setLocationsFormDirty(true) }}
                       style={{ width: '60%' }}
                       icon={<PlusOutlined />}
                     >
@@ -437,7 +449,7 @@ const AdminConferencePage = () => {
               )}
               </Form.List>
               <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" disabled={!locationsFormDirty}>
                   {locationsOptions.length == 0 ? 'Submit' : 'Update'} locations
                 </Button>
               </Form.Item>
