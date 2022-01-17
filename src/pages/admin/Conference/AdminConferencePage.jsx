@@ -728,18 +728,20 @@ const AdminConferencePage = () => {
                             label="Attachment"
                             name={[index, "attachment"]}
                             getValueFromEvent={onUploadAttachment}
+                            style={{marginBottom: '10px'}}
                           >
                             <Upload name="attachment" listType="picture" multiple={false} beforeUpload={() => false} maxCount={1} showUploadList={{showRemoveIcon: false}}>
                               <Button icon={<UploadOutlined />}>Upload presentation file</Button>
                             </Upload>
                           </Form.Item>
-                          {/* { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].attachmentFileName && (
-                            <a onClick={() => onDownloadAttachment(index)} download>Attachment file</a>
-                          )} */}
+                          { savedPresentationsForm[index] && savedPresentationsForm[index].attachmentFileName && (
+                            <a className='attachment-file-link' onClick={() => onDownloadAttachment(index)} download>{savedPresentationsForm[index].attachmentFileName}</a>
+                          )}
                           <Form.Item 
                             label="Main author photo"
                             name={[index, "authorPhoto"]}
                             getValueFromEvent={onUploadAuthorPhoto}
+                            style={{marginTop: '10px'}}
                           >
                             <Upload name="authorPhoto" listType="picture" beforeUpload={() => false} maxCount={1} showUploadList={{showRemoveIcon: false}}>
                               <Button icon={<UploadOutlined />}>Upload main author photo</Button>
