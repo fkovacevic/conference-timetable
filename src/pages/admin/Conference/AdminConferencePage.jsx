@@ -29,9 +29,10 @@ import {
 } from '../../../services/EventService';
 
 import { Collapse } from 'antd';
-import { Form, Input, DatePicker, Button, Select, InputNumber, Upload, Tooltip } from 'antd';
+import { Form, Input, DatePicker, Button, Select, InputNumber, Upload, Tooltip, Avatar } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { hexToNumber, numberToHexColor } from '../../../common/common';
+import apiPath from '../../../constants/api/apiPath';
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -294,7 +295,7 @@ const AdminConferencePage = () => {
 
         const currentPresentation = savedPresentationsForm.find(p => p.id == presentation.id);
         
-        return isEqual(currentPresentation, presentation) && updateSectionPresentation(presentation.id, requestData).then(() => submitPresentationFiles(presentation.id, presentation))
+        return !isEqual(currentPresentation, presentation) && updateSectionPresentation(presentation.id, requestData).then(() => submitPresentationFiles(presentation.id, presentation))
         }
       ),
         ...presentationsToRemove.map((presentation) => deleteSectionPresentation(presentation.id))
@@ -380,24 +381,9 @@ const AdminConferencePage = () => {
      return formData;
     };
  
-    const onDownloadAuthorPhoto = (index) => {
-      const presentationId = presentationsForm.getFieldsValue().presentations[index].id;
-
-      getPresentationAuthorPhoto(presentationId).then((objectData) => {
-        let contentType = "application/octet-stream;charset=utf-8;";
-        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-          var blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(objectData)))], { type: contentType });
-          navigator.msSaveOrOpenBlob(blob, 'author_photo.jpeg');
-        } else {
-          var a = document.createElement('a');
-          a.download = 'author_photo.jpeg';
-          a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(objectData));
-          a.target = '_blank';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        }
-      })
+    const authorPhotoSrc = (index) => {
+      const presentationId = savedPresentationsForm[index].id;
+      return `${apiPath}/presentations/${presentationId}/photos`;
     }
 
   return (
@@ -759,9 +745,11 @@ const AdminConferencePage = () => {
                               <Button icon={<UploadOutlined />}>Upload main author photo</Button>
                             </Upload>
                           </Form.Item>
-                          {/* { presentationsForm.getFieldsValue().presentations && presentationsForm.getFieldsValue().presentations[index].hasPhoto && (
-                            <a onClick={() => onDownloadAuthorPhoto(index)} download>Main autho photo</a>
-                          )} */}
+
+                          { savedPresentationsForm[index] && savedPresentationsForm[index].hasPhoto ?  
+                            <Avatar src={authorPhotoSrc(index)} style={{ marginLeft: '200px'}}/>
+                            : null
+                          }
                         </Form.Item>
                       
                       </div>
