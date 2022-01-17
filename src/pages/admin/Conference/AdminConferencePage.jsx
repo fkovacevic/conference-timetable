@@ -100,6 +100,9 @@ const AdminConferencePage = () => {
   const [savedLocationsForm, setSavedLocationsForm] = useState({});
   const [locationsFormDirty, setLocationsFormDirty] = useState(false);
 
+  const [savedSectionsForm, setSavedSectionsForm] = useState({});
+  const [sectionsFormDirty, setSectionsFormDirty] = useState(false);
+
 
   useEffect(() => {
     if (eventId) {
@@ -194,18 +197,19 @@ const AdminConferencePage = () => {
 
   const setSectionsForm = (sections) => {
     if (sections.length > 0) {
-      sectionsForm.setFieldsValue({
-        sections: sections.map((section) => {
-          return {
-            id: section.id,
-            title: section.title,
-            location: section.locationId,
-            chairmen: section.chairs,
-            sectionDateRange: [moment(section.startAt).utc(), moment(section.endAt).utc()],
-            backgroundColor: numberToHexColor(section.backgroundColor)
-          }
-        })
+      const form = sections.map((section) => {
+        return {
+          id: section.id,
+          title: section.title,
+          location: section.locationId,
+          chairmen: section.chairs,
+          sectionDateRange: [moment(section.startAt).utc(), moment(section.endAt).utc()],
+          backgroundColor: numberToHexColor(section.backgroundColor)
+        }
       })
+      sectionsForm.setFieldsValue({sections: form})
+      setSavedSectionsForm(form);
+      setSectionsFormDirty(false);
     }
   }
 
@@ -232,6 +236,10 @@ const AdminConferencePage = () => {
       setSectionsOptions(sections);
       setSectionsForm(sections);
     })
+  }
+
+  const checkSectionsFormDirty = () => {
+    setSectionsFormDirty(!isEqual(savedSectionsForm, sectionsForm.getFieldsValue().sections));
   }
 
     // Presentations
@@ -457,7 +465,7 @@ const AdminConferencePage = () => {
           </Panel>
 
           <Panel header="Sections" key="3" {...formItemLayoutWithOutLabel} >
-            <Form form={sectionsForm} initialValues={{sections: [emptySectionForm]}} onFinish={onSubmitSections}>
+            <Form form={sectionsForm} initialValues={{sections: [emptySectionForm]}} onFinish={onSubmitSections} onChange={checkSectionsFormDirty}>
               <Form.List label="Sections" name="sections">
                 {(sections, { add, remove }, { errors }) => (
                   <>
@@ -466,7 +474,7 @@ const AdminConferencePage = () => {
                         {sections.length > 1 ? (
                           <MinusCircleOutlined
                             className="dynamic-delete-button"
-                            onClick={() => remove(section.name)}
+                            onClick={() => { remove(section.name); setSectionsFormDirty(true)}}
                           />
                         ) : null}
                         <Form.Item
@@ -501,7 +509,7 @@ const AdminConferencePage = () => {
                             name={[index, "sectionDateRange"]}
                             {...dateRangeConfig}
                           >
-                            <RangePicker showTime format="DD-MM-YYYY HH:mm" />
+                            <RangePicker showTime format="DD-MM-YYYY HH:mm" onChange={() => setSectionsFormDirty(true)} />
                           </Form.Item>
                           <Form.List label="Chairmen" initialValue={['']} name={[index, "chairmen"]}>
                             {(chairmen, { add, remove }, { errors }) => (
@@ -531,7 +539,7 @@ const AdminConferencePage = () => {
                                       {chairmen.length > 1 ? (
                                         <MinusCircleOutlined
                                           className="dynamic-delete-button"
-                                          onClick={() => remove(chairman.name)}
+                                          onClick={() => {remove(chairman.name); setSectionsFormDirty(true)}}
                                         />
                                       ) : null}
                                     </Form.Item>
@@ -540,7 +548,7 @@ const AdminConferencePage = () => {
                                 <Form.Item {...formItemLayoutWithOutLabel}>
                                   <Button
                                     type="dashed"
-                                    onClick={() => add()}
+                                    onClick={() => { add(); setSectionsFormDirty(true) }}
                                     style={{ width: '60%' }}
                                     icon={<PlusOutlined />}
                                   >
@@ -565,6 +573,7 @@ const AdminConferencePage = () => {
                                 const { sections } = fields;
                                 Object.assign(sections[index], {...sections[index], backgroundColor: color.hex})
                                 sectionsForm.setFieldsValue({sections})
+                                setSectionsFormDirty(true);
                               }}
                           />
                           </Form.Item>
@@ -574,7 +583,7 @@ const AdminConferencePage = () => {
                     <Form.Item {...formItemAdd}>
                       <Button
                         type="dashed"
-                        onClick={() => add()}
+                        onClick={() => { add(); setSectionsFormDirty(true) }}
                         style={{ width: '60%' }}
                         icon={<PlusOutlined />}
                       >
@@ -585,7 +594,7 @@ const AdminConferencePage = () => {
                   </>
                 )}
               </Form.List>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit"  disabled={!sectionsFormDirty}>
                 {actionText} sections
               </Button>
             </Form>
