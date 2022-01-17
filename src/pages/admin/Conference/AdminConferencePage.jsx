@@ -174,6 +174,7 @@ const AdminConferencePage = () => {
     if (locations.length) {
       locationsForm.setFieldsValue({ locations })
       setSavedLocationsForm(locations);
+      setLocationsFormDirty(false);
     }
   }
 
