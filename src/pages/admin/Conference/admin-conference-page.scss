@@ -15,7 +15,11 @@
   opacity: 0.5;
 }
 
-.container {
+.wrapper {
   display: flex;
   flex-direction: row;
+
+  .container {
+    flex: 1;
+  }
 }

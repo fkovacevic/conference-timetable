@@ -494,7 +494,7 @@ const AdminConferencePage = () => {
                 {(sections, { add, remove }, { errors }) => (
                   <>
                     {sections.map((section, index) => (
-                      <div className='container'>
+                      <div className='wrapper'>
                         {sections.length > 1 ? (
                           <Tooltip title="Remove section">
                             <MinusCircleOutlined
@@ -508,6 +508,7 @@ const AdminConferencePage = () => {
                           label={`${index + 1}. Section`}
                           required={false}
                           key={section.key}
+                          className='container'
                         >
                           <Form.Item
                             label="Title"
@@ -633,7 +634,7 @@ const AdminConferencePage = () => {
                 {(presentations, { add, remove }, { errors }) => (
                   <>
                     {presentations.map((presentation, index) => (
-                      <div className='container'>
+                      <div className='wrapper'>
                         {presentations.length > 1 ? (
                           <Tooltip title="Remove presentation">
                             <MinusCircleOutlined
@@ -647,6 +648,7 @@ const AdminConferencePage = () => {
                           label={`${index + 1}. Presentation`}
                           required={false}
                           key={presentation.key}
+                          className='container'
                         >
                           <Form.Item
                             label="Title"
