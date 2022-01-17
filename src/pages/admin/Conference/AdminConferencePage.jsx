@@ -39,7 +39,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 const { Panel } = Collapse;
 
-const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss[Z]';
+const dateTimeFormat = 'YYYY-MM-DDTHH:mm:00[Z]';
 
 const formItemLayout = {
   labelCol: { span: 2, offset: 0 },
