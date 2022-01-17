@@ -271,6 +271,7 @@ const AdminConferencePage = () => {
 
       presentationsForm.setFieldsValue({presentations: form});
       setSavedPresentationsForm(form);
+      setPresentationsFormDirty(false);
   }
 
   const onSubmitPresentations = ({presentations}) => {
@@ -286,9 +287,13 @@ const AdminConferencePage = () => {
           durationMinutes: presentation.durationMinutes
         }
 
-        return presentation && presentation.id ?
-          updateSectionPresentation(presentation.id, requestData).then(() => submitPresentationFiles(presentation.id, presentation))
-          : addSectionPresentation(requestData).then(({id}) => submitPresentationFiles(id, presentation))
+        if (!presentation || !presentation.id) {
+          return addSectionPresentation(requestData).then(({id}) => submitPresentationFiles(id, presentation));
+        }
+
+        const currentPresentation = savedPresentationsForm.find(p => p.id == presentation.id);
+        
+        return isEqual(currentPresentation, presentation) && updateSectionPresentation(presentation.id, requestData).then(() => submitPresentationFiles(presentation.id, presentation))
         }
       ),
         ...presentationsToRemove.map((presentation) => deleteSectionPresentation(presentation.id))
@@ -644,7 +649,7 @@ const AdminConferencePage = () => {
                             name={[index, "section"]}
                             rules={[{ required: true, message: "Section is required" }]}
                           >
-                            <Select>
+                            <Select onChange={checkPresentationsFormDirty}>
                               {sectionsOptions.map(
                                 section =>
                                   section.title && (
