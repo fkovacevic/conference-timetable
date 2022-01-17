@@ -4,6 +4,7 @@ import 'antd/dist/antd.css';
 import moment from 'moment';
 import { BlockPicker } from 'react-color';
 import { useParams, useHistory } from 'react-router-dom';
+import { isEqual } from 'lodash';
 
 import { 
   createEvent,
@@ -93,6 +94,9 @@ const AdminConferencePage = () => {
   const [sectionsOptions, setSectionsOptions] = useState([]);
   const [presentationsOptions, setPresentationsOptions] = useState([]);
 
+  const [savedEventForm, setSavedEventForm] = useState({});
+  const [eventFormDirty, setEventsFormDirty] = useState(false);
+
 
   useEffect(() => {
     if (eventId) {
@@ -125,14 +129,45 @@ const AdminConferencePage = () => {
     }
   }, [])
 
+  // Event form
+
   const setEventForm = (event) => {
     eventForm.setFieldsValue({
       title: event.title,
       description: event.description,
       eventDateRange: [moment(event.startAt).utc(), moment(event.endAt).utc()]
     })
+    setSavedEventForm(eventForm.getFieldsValue());
+  }
+
+  const onSubmitEvent = (values) => {
+    const requestData = {
+      title: values.title,
+      description: values.description,
+      startAt: moment(values.eventDateRange[0]).format(dateTimeFormat),
+      endAt: moment(values.eventDateRange[1]).format(dateTimeFormat)
+    };
+
+    editMode ? 
+    updateEvent(eventId, requestData).then(() => setSavedEventForm(eventForm.getFieldsValue()))
+    : createEvent(requestData).then(({id}) => { history.push(`/conferences/${id}`); window.location.reload() })
+    setEventsFormDirty(false);
+  }
+
+  const checkEventFormDirty = () => {
+    setEventsFormDirty(!isEqual(savedEventForm, eventForm.getFieldsValue()));
   }
   
+
+  // Locations form
+
+  const setLocationsForm = (locations) => {
+    if (locations.length) {
+      locationsForm.setFieldsValue({ locations })
+    }
+  }
+
+
   const setSectionsForm = (sections) => {
     if (sections.length > 0) {
       sectionsForm.setFieldsValue({
@@ -150,24 +185,8 @@ const AdminConferencePage = () => {
     }
   }
 
-  const setLocationsForm = (locations) => {
-    if (locations.length) {
-      locationsForm.setFieldsValue({ locations })
-    }
-  }
+ 
   
-  const onSubmitEvent = (values) => {
-    const requestData = {
-      title: values.title,
-      description: values.description,
-      startAt: moment(values.eventDateRange[0]).format(dateTimeFormat),
-      endAt: moment(values.eventDateRange[1]).format(dateTimeFormat)
-    };
-
-    editMode ? 
-    updateEvent(eventId, requestData)
-    : createEvent(requestData).then(({id}) => { history.push(`/conferences/${id}`); window.location.reload() })
-  }
 
    
   const onSubmitLocations = async ({locations}) => {
@@ -341,7 +360,7 @@ const AdminConferencePage = () => {
     <div>
       <Collapse defaultActiveKey={['1']}>
         <Panel header="Event" key="1">
-          <Form form={eventForm}  onFinish={onSubmitEvent}>
+          <Form form={eventForm}  onFinish={onSubmitEvent} onChange={checkEventFormDirty}>
             <Form.Item 
               label="Title"
               name="title"
@@ -361,9 +380,9 @@ const AdminConferencePage = () => {
               name="eventDateRange"
               {...dateRangeConfig}
             >
-              <RangePicker showTime format="DD-MM-YYYY HH:mm" />
+              <RangePicker onChange={() => setEventsFormDirty(true)} showTime format="DD-MM-YYYY HH:mm" />
             </Form.Item>
-            <Button type="primary" htmlType="submit">{actionText} event</Button>
+            <Button type="primary" htmlType="submit" disabled={!eventFormDirty}>{actionText} event</Button>
           </Form>
         </Panel>
 
