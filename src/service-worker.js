@@ -130,7 +130,7 @@ self.addEventListener('push', (event) => {
 		self.registration.showNotification('New Schedule Changes!', options)
 	  );
 	  const swListener = new BroadcastChannel('swListener');
-	  swListener.postMessage(event.data.text());
+	  swListener.postMessage(body);
 });
 
 self.addEventListener('notificationclick', (event) => {
