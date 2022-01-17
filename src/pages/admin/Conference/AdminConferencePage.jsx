@@ -103,6 +103,9 @@ const AdminConferencePage = () => {
   const [savedSectionsForm, setSavedSectionsForm] = useState({});
   const [sectionsFormDirty, setSectionsFormDirty] = useState(false);
 
+  const [savedPresentationsForm, setSavedPresentationsForm] = useState({});
+  const [presentationsFormDirty, setPresentationsFormDirty] = useState(false);
+
 
   useEffect(() => {
     if (eventId) {
@@ -245,7 +248,7 @@ const AdminConferencePage = () => {
     // Presentations
 
     const setPresentationsForm = (presentations) => {
-      presentationsForm.setFieldsValue({presentations: [ ...presentations.map(presentation => {
+      const form = presentations.map(presentation => {
         return {
           id: presentation.id,
           section: presentation.section,
@@ -257,7 +260,10 @@ const AdminConferencePage = () => {
           attachmentFileName: presentation.attachmentFileName,
           hasPhoto: presentation.hasPhoto
         }
-      })]})
+      });
+
+      presentationsForm.setFieldsValue({presentations: form});
+      setSavedPresentationsForm(form);
   }
 
   const onSubmitPresentations = ({presentations}) => {
@@ -280,7 +286,6 @@ const AdminConferencePage = () => {
       ),
         ...presentationsToRemove.map((presentation) => deleteSectionPresentation(presentation.id))
     ]).then(() => {
-      // TODO should fetch all event presentations
       Promise.all([
         ...sectionsOptions.map((section) => getSectionPresentations(section.id)
           .then(({data}) =>  data)
@@ -299,6 +304,10 @@ const AdminConferencePage = () => {
     )
   }
 
+  const checkPresentationsFormDirty = () => {
+    setPresentationsFormDirty(!isEqual(savedPresentationsForm, presentationsForm.getFieldsValue().presentations));
+  }
+
   const submitPresentationFiles = (presentationId, presentation) => {
     return Promise.all([
       presentation.attachment && addPresentationAttachment(presentationId, presentation.attachment), 
@@ -310,6 +319,7 @@ const AdminConferencePage = () => {
   // Presentation attachment
 
   const onUploadAttachment = ({file}) => {
+    setPresentationsFormDirty(true);
     const formData = new FormData();
 
     formData.append(
@@ -346,6 +356,7 @@ const AdminConferencePage = () => {
     // Main author photo
 
     const onUploadAuthorPhoto = ({file}) => {
+      setPresentationsFormDirty(true);
       const formData = new FormData();
       formData.append(
         "photo",
@@ -601,7 +612,7 @@ const AdminConferencePage = () => {
           </Panel>
 
           <Panel header="Presentations" key="4" >
-            <Form form={presentationsForm} {...formItemLayoutWithOutLabel} initialValues={{presentations: [emptyPresentationForm]}} onFinish={onSubmitPresentations}>
+            <Form form={presentationsForm} {...formItemLayoutWithOutLabel} initialValues={{presentations: [emptyPresentationForm]}} onFinish={onSubmitPresentations} onChange={checkPresentationsFormDirty}>
               <Form.List label="Presentations" name="presentations">
                 {(presentations, { add, remove }, { errors }) => (
                   <>
@@ -664,7 +675,7 @@ const AdminConferencePage = () => {
                                       {authors.length > 1 ? (
                                         <MinusCircleOutlined
                                           className="dynamic-delete-button"
-                                          onClick={() => removeAuthor(author.name)}
+                                          onClick={() => { removeAuthor(author.name); setPresentationsFormDirty(true) }}
                                         />
                                       ) : null}
                                     </Form.Item>
@@ -673,7 +684,7 @@ const AdminConferencePage = () => {
                                 <Form.Item {...formItemLayoutWithOutLabel}>
                                   <Button
                                     type="dashed"
-                                    onClick={() => add()}
+                                    onClick={() => { add(); setPresentationsFormDirty(true) }}
                                     style={{ width: '60%' }}
                                     icon={<PlusOutlined />}
                                   >
@@ -729,7 +740,7 @@ const AdminConferencePage = () => {
                         {presentations.length > 1 ? (
                           <MinusCircleOutlined
                             className="dynamic-delete-button"
-                            onClick={() => remove(presentation.name)}
+                            onClick={() => { remove(presentation.name); setPresentationsFormDirty(true) }}
                           />
                         ) : null}
                       </>
@@ -737,7 +748,7 @@ const AdminConferencePage = () => {
                     <Form.Item {...formItemAdd}>
                       <Button
                         type="dashed"
-                        onClick={() => add()}
+                        onClick={() => { add(); setPresentationsFormDirty(true) }}
                         style={{ width: '60%' }}
                         icon={<PlusOutlined />}
                       >
@@ -749,7 +760,7 @@ const AdminConferencePage = () => {
                 )}
               </Form.List>
               <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" disabled={!presentationsFormDirty}>
                   {actionText} presentations
                 </Button>
               </Form.Item>
