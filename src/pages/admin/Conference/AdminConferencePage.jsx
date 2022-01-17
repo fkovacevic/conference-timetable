@@ -29,7 +29,7 @@ import {
 } from '../../../services/EventService';
 
 import { Collapse } from 'antd';
-import { Form, Input, DatePicker, Button, Select, InputNumber, Upload } from 'antd';
+import { Form, Input, DatePicker, Button, Select, InputNumber, Upload, Tooltip } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { hexToNumber, numberToHexColor } from '../../../common/common';
 
@@ -494,12 +494,14 @@ const AdminConferencePage = () => {
                 {(sections, { add, remove }, { errors }) => (
                   <>
                     {sections.map((section, index) => (
-                      <>
+                      <div className='container'>
                         {sections.length > 1 ? (
-                          <MinusCircleOutlined
-                            className="dynamic-delete-button"
-                            onClick={() => { remove(section.name); setSectionsFormDirty(true)}}
-                          />
+                          <Tooltip title="Remove section">
+                            <MinusCircleOutlined
+                              className="dynamic-delete-button"
+                              onClick={() => { remove(section.name); setSectionsFormDirty(true)}}
+                            />
+                          </Tooltip>
                         ) : null}
                         <Form.Item
                           {...formItemLayout}
@@ -603,7 +605,7 @@ const AdminConferencePage = () => {
                           />
                           </Form.Item>
                         </Form.Item>
-                      </>
+                      </div>
                     ))}
                     <Form.Item {...formItemAdd}>
                       <Button
@@ -631,7 +633,15 @@ const AdminConferencePage = () => {
                 {(presentations, { add, remove }, { errors }) => (
                   <>
                     {presentations.map((presentation, index) => (
-                      <>
+                      <div className='container'>
+                        {presentations.length > 1 ? (
+                          <Tooltip title="Remove presentation">
+                            <MinusCircleOutlined
+                              className="dynamic-delete-button"
+                              onClick={() => { remove(presentation.name); setPresentationsFormDirty(true) }}
+                            />
+                          </Tooltip>
+                        ) : null}
                         <Form.Item
                           {...formItemLayoutWithOutLabel}
                           label={`${index + 1}. Presentation`}
@@ -751,13 +761,8 @@ const AdminConferencePage = () => {
                             <a onClick={() => onDownloadAuthorPhoto(index)} download>Main autho photo</a>
                           )} */}
                         </Form.Item>
-                        {presentations.length > 1 ? (
-                          <MinusCircleOutlined
-                            className="dynamic-delete-button"
-                            onClick={() => { remove(presentation.name); setPresentationsFormDirty(true) }}
-                          />
-                        ) : null}
-                      </>
+                      
+                      </div>
                     ))}
                     <Form.Item {...formItemAdd}>
                       <Button
