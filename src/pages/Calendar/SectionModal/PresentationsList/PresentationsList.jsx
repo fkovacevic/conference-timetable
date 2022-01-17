@@ -39,7 +39,7 @@ function presentationsMapper(presentation) {
                     </Col>
                     <Col sm={18}>{presentation.description}</Col>
             </Row>
-            {presentation.attachmentFile && (
+            {presentation.attachmentFileName && (
                 <Row className="presentations-list__attachment">
                         <div className="presentations-list__attachment__card">
                             <a href={`${apiPath}/presentations/${presentation.id}/attachments`} download>Download {presentation.attachmentFile}</a>

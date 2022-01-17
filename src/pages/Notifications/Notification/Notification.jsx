@@ -14,15 +14,15 @@ const Notification = ({ eventChanges, eventId }) => {
 	// delete ids no need for user to see that
 	if (eventChanges.new) {
 		Object.keys(eventChanges.new).forEach(function (key) {
-			if (key.includes('Id')) {
+			if (key.includes('Id' || key.includes('id'))) {
 				delete eventChanges.new[key];
 			}
 		});
 	}
 	if (eventChanges.old) {
 		Object.keys(eventChanges.old).forEach(function (key) {
-			if (key.includes('Id')) {
-				delete eventChanges.new[key];
+			if (key.includes('Id') || key.includes('id')) {
+				delete eventChanges.old[key];
 			}
 		});
 	}
