@@ -734,8 +734,8 @@ const AdminConferencePage = () => {
                               <Button icon={<UploadOutlined />}>Upload presentation file</Button>
                             </Upload>
                           </Form.Item>
-                          { savedPresentationsForm[index] && savedPresentationsForm[index].attachmentFileName && (
-                            <a className='attachment-file-link' onClick={() => onDownloadAttachment(index)} download>{savedPresentationsForm[index].attachmentFileName}</a>
+                          { savedPresentationsForm[presentation.key] && savedPresentationsForm[presentation.key].attachmentFileName && (
+                            <a className='attachment-file-link' onClick={() => onDownloadAttachment(index)} download>{savedPresentationsForm[presentation.key].attachmentFileName}</a>
                           )}
                           <Form.Item 
                             label="Main author photo"
@@ -749,7 +749,7 @@ const AdminConferencePage = () => {
                           </Form.Item>
 
                           { savedPresentationsForm[index] && savedPresentationsForm[index].hasPhoto ?  
-                            <Avatar src={authorPhotoSrc(index)} style={{ marginLeft: '200px'}}/>
+                            <Avatar src={authorPhotoSrc(presentation.key)} style={{ marginLeft: '200px'}}/>
                             : null
                           }
                         </Form.Item>
