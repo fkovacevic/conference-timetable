@@ -28,7 +28,7 @@ import {
 } from '../../../services/EventService';
 
 import { Collapse } from 'antd';
-import { Form, Input, DatePicker, Button, Select, InputNumber, Upload, Tooltip, Avatar, message } from 'antd';
+import { Form, Input, DatePicker, Button, Select, InputNumber, Upload, Tooltip, Avatar, message, Alert } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { hexToNumber, numberToHexColor } from '../../../common/common';
 import apiPath from '../../../constants/api/apiPath';
@@ -76,7 +76,7 @@ const emptyPresentationForm = {
   section: null,
   title: '',
   description: '',
-  durationMinutes: null,
+  durationMinutes: null
 }
 
 const AdminConferencePage = () => {
@@ -106,14 +106,16 @@ const AdminConferencePage = () => {
   const [savedPresentationsForm, setSavedPresentationsForm] = useState({});
   const [presentationsFormDirty, setPresentationsFormDirty] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState('');
+
 
   useEffect(() => {
     if (eventId) {
-      getEvent(eventId).then((event) => setEventForm(event));
+      getEvent(eventId).then((event) => setEventForm(event)).catch(() => displayError('Failed to load event'));
       getEventLocations(eventId).then((locations) => {
         setLocationsForm(locations);
         setLocationsOptions(locations)
-      })
+      }).catch(() => displayError('Failed to load event locations'));
       getEventSections(eventId).then((sections) => {
         setSectionsForm(sections);
         setSectionsOptions(sections);
@@ -134,8 +136,8 @@ const AdminConferencePage = () => {
             setPresentationsOptions(allPresentations);
             setPresentationsForm(allPresentations);
           }
-        })
-      })
+        }).catch(() => displayError('Failed to load section presentations'))
+      }).catch(() => displayError('Failed to load event sections'))
     }
   }, [])
 
@@ -159,8 +161,8 @@ const AdminConferencePage = () => {
     };
 
     editMode ? 
-    updateEvent(eventId, requestData).then(() => setSavedEventForm(eventForm.getFieldsValue()))
-    : createEvent(requestData).then(({id}) => { history.push(`/conferences/${id}`); window.location.reload() })
+    updateEvent(eventId, requestData).then(() => setSavedEventForm(eventForm.getFieldsValue())).catch(() => displayError('Failed to update event'))
+    : createEvent(requestData).then(({id}) => { history.push(`/conferences/${id}`); window.location.reload() }).catch(() => displayError('Failed to create event'))
     setEventsFormDirty(false);
   }
 
@@ -184,7 +186,7 @@ const AdminConferencePage = () => {
     const locationsToRemove = locationsOptions.filter(l => !locationIds.includes(l.id));
     Promise.all([...locations.map(location => {
       if (!location || !location.id) {
-        return addEventLocation({eventId, name: location.name});
+        return addEventLocation({eventId, name: location.name}).catch(() => displayError('Failed to add event location'));
       }
       
       const currentLocation = locationsOptions.find(l => l.id == location.id);
@@ -237,7 +239,7 @@ const AdminConferencePage = () => {
       }
 
       if (!section || !section.id) {
-        return addEventSection(requestData);
+        return addEventSection(requestData).catch(() => displayError('Failed to create event section'));
       }
 
       const currentSection = savedSectionsForm.find(s => s.id == section.id);
@@ -290,15 +292,15 @@ const AdminConferencePage = () => {
         }
 
         if (!presentation || !presentation.id) {
-          return addSectionPresentation(requestData).then(({data}) => data).then(({id}) => submitPresentationFiles(id, presentation));
+          return addSectionPresentation(requestData).then(({data}) => data).then(({id}) => submitPresentationFiles(id, presentation)).catch(() => displayError('Failed to create presentation'));
         }
 
         const currentPresentation = savedPresentationsForm.find(p => p.id == presentation.id);
         
-        return !isEqual(currentPresentation, presentation) && updateSectionPresentation(presentation.id, requestData).then(() => submitPresentationFiles(presentation.id, presentation))
+        return !isEqual(currentPresentation, presentation) && updateSectionPresentation(presentation.id, requestData).then(() => submitPresentationFiles(presentation.id, presentation)).catch(() => displayError('Failed to update presentation'))
         }
       ),
-        ...presentationsToRemove.map((presentation) => deleteSectionPresentation(presentation.id))
+        ...presentationsToRemove.map((presentation) => deleteSectionPresentation(presentation.id).catch(() => displayError('Failed to delete presentation')))
     ]).then(() => {
       Promise.all([
         ...sectionsOptions.map((section) => getSectionPresentations(section.id)
@@ -327,8 +329,8 @@ const AdminConferencePage = () => {
 
   const submitPresentationFiles = (presentationId, presentation) => {
     return Promise.all([
-      presentation.attachment && addPresentationAttachment(presentationId, presentation.attachment), 
-      presentation.authorPhoto && addPresentationAuthorPhoto(presentationId, presentation.authorPhoto)
+      presentation.attachment && addPresentationAttachment(presentationId, presentation.attachment).catch(() => displayError('Failed to upload presentation attachment')), 
+      presentation.authorPhoto && addPresentationAuthorPhoto(presentationId, presentation.authorPhoto).catch(() => displayError('Failed to upload main author photo'))
     ])
   }
 
@@ -347,8 +349,10 @@ const AdminConferencePage = () => {
       file,
       file.name
     );
-
-    presentationsForm.getFieldsValue().presentations[index].attachment = formData;
+    
+    const { presentations } = presentationsForm.getFieldsValue();
+    Object.assign(presentations[index], { ...presentations[index], attachment: formData });
+    presentationsForm.setFieldsValue({ presentations });
     return formData;
   };
 
@@ -389,7 +393,9 @@ const AdminConferencePage = () => {
         file.name
       );
   
-      presentationsForm.getFieldsValue().presentations[index].authorPhoto = formData;
+      const { presentations } = presentationsForm.getFieldsValue();
+      Object.assign(presentations[index], { ...presentations[index], authorPhoto: formData });
+      presentationsForm.setFieldsValue({ presentations });
      return formData;
     };
  
@@ -410,7 +416,7 @@ const AdminConferencePage = () => {
     }
 
     function beforeAttachmentUpload(file) {
-      const isLt2M = file.size / 1024 < 2;
+      const isLt2M = file.size / 1024 / 1024 < 2;
       if (!isLt2M) {
         message.error('Image must smaller than 2MB!');
       }
@@ -443,8 +449,22 @@ const AdminConferencePage = () => {
       }, 0);
     };
 
+    const displayError = (message) => {
+      setErrorMessage(message);
+      setTimeout(() => setErrorMessage(''), 3000);
+    }
+
   return (
     <div>
+      { errorMessage && (
+        <Alert
+          className='error-popup'
+          message="Error"
+          showIcon
+          description={errorMessage}
+          type="error"
+        />
+      )}
       <Collapse defaultActiveKey={['1']}>
         <Panel header="Event" key="1">
           <Form form={eventForm}  onFinish={onSubmitEvent} onChange={checkEventFormDirty}>
