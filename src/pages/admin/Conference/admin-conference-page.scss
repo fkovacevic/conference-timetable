@@ -1,3 +1,5 @@
+@import '/src/constants/styles/color-constants';
+
 .dynamic-delete-button {
   position: relative;
   top: 4px;
@@ -36,4 +38,26 @@
   width: 300px;
   border: 1px solid red !important;
   z-index: 10;
+}
+
+.download-btn {
+  display: flex;
+  justify-content: center;
+  padding: 8px 20px;
+  font-size: 14px;
+  border: 0.5px solid grey;
+  background-color: hsl(0, 6%, 94%);
+  border-radius: 4px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  width: fit-content;
+  margin: 20px 50px;
+}
+
+.download-icon {
+  font-size: 24px;
+  margin-left: 8px;
+  color: $theme-blue;
+  svg {
+      color: $theme-blue;
+  }
 }

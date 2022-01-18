@@ -29,7 +29,7 @@ import {
 
 import { Collapse } from 'antd';
 import { Form, Input, DatePicker, Button, Select, InputNumber, Upload, Tooltip, Avatar, message, Alert } from 'antd';
-import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { MinusCircleOutlined, PlusOutlined, UploadOutlined, CloudDownloadOutlined } from '@ant-design/icons';
 import { hexToNumber, numberToHexColor } from '../../../common/common';
 import apiPath from '../../../constants/api/apiPath';
 
@@ -355,30 +355,6 @@ const AdminConferencePage = () => {
     presentationsForm.setFieldsValue({ presentations });
     return formData;
   };
-
-  const onDownloadAttachment = (index) => {
-    const presentation = presentationsForm.getFieldsValue().presentations[index];
-    const presentationId = presentation.id;
-    const filename = presentation.attachmentFileName;
-    
-    getPresentationAttachment(presentationId).then((objectData) => {
-      let contentType = "application/octet-stream;charset=utf-8;";
-      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-        var blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(objectData)))], { type: contentType });
-        navigator.msSaveOrOpenBlob(blob, filename);
-      } else {
-        var a = document.createElement('a');
-        a.download = filename;
-        a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(objectData));
-        a.target = '_blank';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-    })
-  }
-
-    // Main author photo
 
     const onUploadAuthorPhoto = (file, index) => {
       if (!file) {
@@ -811,7 +787,10 @@ const AdminConferencePage = () => {
                             </Upload>
                           </Form.Item>
                           { savedPresentationsForm[presentation.key] && savedPresentationsForm[presentation.key].attachmentFileName && (
-                            <a className='attachment-file-link' onClick={() => onDownloadAttachment(index)} download>{savedPresentationsForm[presentation.key].attachmentFileName}</a>
+                               <div className="download-btn">
+                                  <a href={`${apiPath}/presentations/${savedPresentationsForm[presentation.key].id}/attachments`} download>Download {savedPresentationsForm[presentation.key].attachmentFileName}</a>
+                               <CloudDownloadOutlined className="download-icon"/>
+                           </div>
                           )}
                           <Form.Item 
                             label="Main author photo"
