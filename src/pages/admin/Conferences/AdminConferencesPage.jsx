@@ -100,6 +100,7 @@ const Conferences = () => {
       title: "Title",
       dataIndex: 'title',
       key: 'title',
+      ellipsis: true,
       sorter: (a, b) => a.title.localeCompare(b.title),
       render: (title, conference) => <Button onClick={() => onRedirectToConferencePage(conference.id)}>{title}</Button>,
     },
@@ -107,22 +108,26 @@ const Conferences = () => {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
-      ellipsis: true
+      ellipsis: true,
+      responsive: ["md", "lg"]
     },
     {
       title: 'Starts',
       dataIndex: 'startAt',
       key: 'startAt',
+      ellipsis: true,
       render: (start) => moment(start).format(displayFormat),
-      sorter: (a, b) =>moment(a.startAt, dateTimeFormat).diff(moment(b.startAt, dateTimeFormat))
-
+      sorter: (a, b) =>moment(a.startAt, dateTimeFormat).diff(moment(b.startAt, dateTimeFormat)),
+      responsive: ["md", "lg"]
     },
     {
       title: 'Ends',
       dataIndex: 'endAt',
       key: 'endAt',
+      ellipsis: true,
       render: (end) => moment(end).format(displayFormat),
-      sorter: (a, b) =>moment(a.endAt, dateTimeFormat).diff(moment(b.endAt, dateTimeFormat))
+      sorter: (a, b) =>moment(a.endAt, dateTimeFormat).diff(moment(b.endAt, dateTimeFormat)),
+      responsive: ["md", "lg"]
     },
     {
       width: '150px',
@@ -140,8 +145,8 @@ const Conferences = () => {
             </Tooltip>
           </div>
         )
-      }
-    }
+      },
+    },
   ];
 
   useEffect(() => {
