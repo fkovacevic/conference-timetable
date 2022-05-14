@@ -1,3 +1,5 @@
+@import '/src/constants/styles/color-constants';
+
 .dynamic-delete-button {
   position: relative;
   top: 4px;
@@ -13,4 +15,49 @@
 .dynamic-delete-button[disabled] {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+
+  .container {
+    flex: 1;
+  }
+}
+
+.attachment-file-link {
+  margin-left: 200px;
+  margin-bottom: 20px;
+}
+
+.error-popup {
+  position: fixed !important;
+  top: 70px;
+  right: 20px;
+  width: 300px;
+  border: 1px solid red !important;
+  z-index: 10;
+}
+
+.download-btn {
+  display: flex;
+  justify-content: center;
+  padding: 8px 20px;
+  font-size: 14px;
+  border: 0.5px solid grey;
+  background-color: hsl(0, 6%, 94%);
+  border-radius: 4px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  width: fit-content;
+  margin: 20px 50px;
+}
+
+.download-icon {
+  font-size: 24px;
+  margin-left: 8px;
+  color: $theme-blue;
+  svg {
+      color: $theme-blue;
+  }
 }
